@@ -18,7 +18,7 @@ struct ContentView: View {
 var tabs = ["select" , "favorite", "home", "order" , "mapage"]
 
 struct BottomTapbarView: View {
-    @State var tabSelection = "select"
+    @State var tabSelection = "home"
     
     init() {
         UITabBar.appearance().isHidden = true
@@ -33,10 +33,6 @@ struct BottomTapbarView: View {
         ZStack(alignment: Alignment(horizontal: .center, vertical: .bottom)){
             TabView(selection:$tabSelection){
                 
-                Color.red
-                    .ignoresSafeArea(.all, edges: .all)
-                    .tag("hoem")
-                
                 Color.yellow
                     .ignoresSafeArea(.all, edges: .all)
                     .tag("select")
@@ -44,6 +40,8 @@ struct BottomTapbarView: View {
                 Color.purple
                     .ignoresSafeArea(.all, edges: .all)
                     .tag("favorite")
+                
+                HomeView().tag("home")
                 
                 Color.blue
                     .ignoresSafeArea(.all, edges: .all)
@@ -101,7 +99,8 @@ struct BottomTapbarView: View {
 
                         }).onAppear(perform: {
                             if image == tabs.first{
-                                xAxis = reader.frame(in: .global).minX
+                                //처음 들어왔을 때 초기값.
+                                xAxis = -100//reader.frame(in: .global).minX
                                 
                             }
                         })
