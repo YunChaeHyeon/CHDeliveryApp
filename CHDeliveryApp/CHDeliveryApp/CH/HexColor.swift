@@ -28,4 +28,12 @@ extension Color {
             blue: .random(in: 0.8...1)
         )
     }
+    
+    static var random2: Color {
+        return Color(
+            red: .random(in: 0.3...0.7),
+            green: .random(in: 0.3...0.7),
+            blue: .random(in: 0.3...0.7)
+        )
+    }
 }

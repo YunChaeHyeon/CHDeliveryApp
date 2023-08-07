@@ -203,75 +203,89 @@ struct HomeButtonStyle: ButtonStyle {
     var width: CGFloat
     var height: CGFloat
     var fontsize : CGFloat
+    var  backColor : Color? = nil
     
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .font(.system(size: fontsize ,weight: .bold))
             .frame(width: width, height: height)
-            .background(Color.white)
+            .background(backColor == nil ? Color.white : backColor)
             .cornerRadius(10)
             .scaleEffect(configuration.isPressed ? 1.0 : 1.05)
     }
 }
 
 struct MainOptionView : View {
+    @State private var tag:Int? = nil
+    
     var body: some View {
-        
-        VStack(spacing: 20){
-            //알뜰 한집 배달 / 배달
-            HStack(spacing: 20){
-                Button(action: {}, label: {
-                    Text("알뜰 한집 배달")
-                })
-                    .buttonStyle(HomeButtonStyle(width: 170,height: 170 ,fontsize: 23))
-                
-                Button(action: {}, label: {
-                    Text("배달")
-                }).buttonStyle(HomeButtonStyle(width: 170,height: 170 ,fontsize: 23))
+        ZStack{
+            NavigationLink(destination: DeliveryView(), tag: 1, selection: self.$tag ) {
+              EmptyView()
             }
+          
+//              Button( action : {
+//                self.tag = 1
+//              }) {
+//                Text("Button")
+//              }
+                    VStack(spacing: 20){
+                        //알뜰 한집 배달 / 배달
+                        HStack(spacing: 20){
+                            Button(action: {}, label: {
+                                Text("알뜰 한집 배달")
+                            })
+                                .buttonStyle(HomeButtonStyle(width: 170,height: 170 ,fontsize: 23))
             
-            //포장
-            Button(action: {}, label: {
-                Text("포장")
-            }).buttonStyle(HomeButtonStyle(width: 350,height: 70 ,fontsize: 23))
+                            Button(action: {self.tag = 1}, label: {
+                                Text("배달")
+                            }).buttonStyle(HomeButtonStyle(width: 170,height: 170 ,fontsize: 23))
+                        }
             
-            //B마트 / 뷰티관
-            HStack(spacing: 20){
-                Button(action: {}, label: {
-                    Text("B마트")
-                }).buttonStyle(HomeButtonStyle(width: 170,height: 120 ,fontsize: 23))
-                Button(action: {}, label: {
-                    Text("뷰티관")
-                }).buttonStyle(HomeButtonStyle(width: 170,height: 120 ,fontsize: 23))
-            }
+                        //포장
+                        Button(action: {}, label: {
+                            Text("포장")
+                        }).buttonStyle(HomeButtonStyle(width: 350,height: 70 ,fontsize: 23))
             
-            //배민 스토어
-            Button(action: {}, label: {
-                Text("배민 스토어")
-            }).buttonStyle(HomeButtonStyle(width: 350,height: 70 ,fontsize: 23))
+                        //B마트 / 뷰티관
+                        HStack(spacing: 20){
+                            Button(action: {}, label: {
+                                Text("B마트")
+                            }).buttonStyle(HomeButtonStyle(width: 170,height: 120 ,fontsize: 23))
+                            Button(action: {}, label: {
+                                Text("뷰티관")
+                            }).buttonStyle(HomeButtonStyle(width: 170,height: 120 ,fontsize: 23))
+                        }
             
-            //쇼핑라이브 / 전국별미 / 선물하기 / 웹툰
-            HStack(spacing: 20){
-                Button(action: {}, label: {
-                    Text("쇼핑라이브")
-                }).buttonStyle(HomeButtonStyle(width: 75,height: 100 ,fontsize: 13))
-                
-                Button(action: {}, label: {
-                    Text("전국별미")
-                }).buttonStyle(HomeButtonStyle(width: 75,height: 100 ,fontsize: 13))
-                
-                Button(action: {}, label: {
-                    Text("선물하기")
-                }).buttonStyle(HomeButtonStyle(width: 75,height: 100 ,fontsize: 13))
-                
-                Button(action: {}, label: {
-                    Text("웹툰")
-                }).buttonStyle(HomeButtonStyle(width: 75,height: 100 ,fontsize: 13))
-                
-            }
+                        //배민 스토어
+                        Button(action: {}, label: {
+                            Text("배민 스토어")
+                        }).buttonStyle(HomeButtonStyle(width: 350,height: 70 ,fontsize: 23))
+            
+                        //쇼핑라이브 / 전국별미 / 선물하기 / 웹툰
+                        HStack(spacing: 20){
+                            Button(action: {}, label: {
+                                Text("쇼핑라이브")
+                            }).buttonStyle(HomeButtonStyle(width: 75,height: 100 ,fontsize: 13))
+            
+                            Button(action: {}, label: {
+                                Text("전국별미")
+                            }).buttonStyle(HomeButtonStyle(width: 75,height: 100 ,fontsize: 13))
+            
+                            Button(action: {}, label: {
+                                Text("선물하기")
+                            }).buttonStyle(HomeButtonStyle(width: 75,height: 100 ,fontsize: 13))
+            
+                            Button(action: {}, label: {
+                                Text("웹툰")
+                            }).buttonStyle(HomeButtonStyle(width: 75,height: 100 ,fontsize: 13))
+            
+                        }
+                    } //VStack
         }
+
         
-    }
+  }
 }
 
 struct SliderView : View {
