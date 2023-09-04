@@ -16,8 +16,8 @@
 		C05F723F2A7A6A7700AFB833 /* Homepage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05F723E2A7A6A7700AFB833 /* Homepage.swift */; };
 		C05F72432A7B760F00AFB833 /* Shape.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05F72422A7B760F00AFB833 /* Shape.swift */; };
 		C05F72462A7BAE1F00AFB833 /* HexColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05F72452A7BAE1F00AFB833 /* HexColor.swift */; };
+		C0E58E8E2A8380CF00F5F9A5 /*  SelectShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E58E8D2A8380CF00F5F9A5 /*  SelectShopView.swift */; };
 		C0F6D10D2A7CE40C00931AAE /* DeliveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F6D10C2A7CE40C00931AAE /* DeliveryView.swift */; };
-		C0F6D10F2A80DD7600931AAE /* NavigationLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F6D10E2A80DD7600931AAE /* NavigationLink.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,8 +31,8 @@
 		C05F723E2A7A6A7700AFB833 /* Homepage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Homepage.swift; sourceTree = "<group>"; };
 		C05F72422A7B760F00AFB833 /* Shape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shape.swift; sourceTree = "<group>"; };
 		C05F72452A7BAE1F00AFB833 /* HexColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexColor.swift; sourceTree = "<group>"; };
+		C0E58E8D2A8380CF00F5F9A5 /*  SelectShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = " SelectShopView.swift"; sourceTree = "<group>"; };
 		C0F6D10C2A7CE40C00931AAE /* DeliveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryView.swift; sourceTree = "<group>"; };
-		C0F6D10E2A80DD7600931AAE /* NavigationLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationLink.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,7 +90,7 @@
 				C05F723E2A7A6A7700AFB833 /* Homepage.swift */,
 				C02210E02A7C11BB00468A8E /* RefreshControl.swift */,
 				C0F6D10C2A7CE40C00931AAE /* DeliveryView.swift */,
-				C0F6D10E2A80DD7600931AAE /* NavigationLink.swift */,
+				C0E58E8D2A8380CF00F5F9A5 /*  SelectShopView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -185,7 +185,7 @@
 				C05F723F2A7A6A7700AFB833 /* Homepage.swift in Sources */,
 				C056D13C2A7A22B4007613CA /* ContentView.swift in Sources */,
 				C05F72462A7BAE1F00AFB833 /* HexColor.swift in Sources */,
-				C0F6D10F2A80DD7600931AAE /* NavigationLink.swift in Sources */,
+				C0E58E8E2A8380CF00F5F9A5 /*  SelectShopView.swift in Sources */,
 				C02210E32A7CE29100468A8E /* Test.swift in Sources */,
 				C0F6D10D2A7CE40C00931AAE /* DeliveryView.swift in Sources */,
 				C02210E12A7C11BB00468A8E /* RefreshControl.swift in Sources */,

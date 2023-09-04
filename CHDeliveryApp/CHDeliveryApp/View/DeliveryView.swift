@@ -11,13 +11,7 @@ struct DeliveryView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-
             ScrollView{
-
-//                RefreshControl(coordinateSpace: .named("RefreshControl")) {
-//                    //refresh view here
-//                }
-//Spacer().frame(height:80)
                 //Top
                 VStack{
                     SliderView()
@@ -26,7 +20,7 @@ struct DeliveryView: View {
                     DeliveryGuideView()
                     
                     DeliveryGridView()
-
+                    
                 }.background(Color.white)
                     .padding(20)
 
@@ -36,10 +30,13 @@ struct DeliveryView: View {
                     
                     RandomShopView()
                     
+                    
+                    
                 }.background(Color.white)
-
                 
-            }.background(
+                Spacer(minLength: 100)
+            }
+            .background(
                 VStack(spacing: .zero) {
                     Color.white
                         .frame(height : 120)
@@ -73,9 +70,6 @@ struct DeliveryView: View {
 
                     }
                 }
-            //.background(Color(hex: 0xEFEFEF))
-            
-
     }
 }
 
@@ -138,11 +132,15 @@ struct DeliveryGuideView : View {
     }
 }
 
+struct Category {
+    let foodName = ["족발 보쌈" , "찜 탕 찌개" , "일식", "피자","고기","야식","양식","치킨","중식","백반","도시락","분식","패스트푸드","아시안"]
+}
 
 struct DeliveryGridView : View {
 
     let image = ["porkfeet","soup","sushi","pizza","meat","moon","pasta","chicken","Jajangmyeon","rice","lunchbox","tteokbokki","hamburger","ricenoodles"]
-    let foodName = ["족발 보쌈" , "찜 탕 찌개" , "일식", "피자","고기","야식","양식","치킨","중식","백반","도시락","분식","패스트푸드","아시안"]
+    
+    var Foods : Category = Category()
     
     let columns = [
         GridItem(.fixed(75)),
@@ -152,17 +150,29 @@ struct DeliveryGridView : View {
         GridItem(.fixed(75)),
     ]
     
+    @State private var tag:Int? = nil
+    
     var body: some View {
+        
         LazyVGrid(columns: columns) {
+            
                         ForEach(0..<14) { ix in
-                            Button(action: {} , label: {
-                                VStack{
-                                    Image("category/\(image[ix])")
-                                        .resizable().frame(width: 50, height: 50)
-                                    Text("\(foodName[ix])").foregroundColor(Color.black)
-                                }
-                            }).buttonStyle(HomeButtonStyle(width: 80,height: 80 ,fontsize: 15))
-                        }
+                            NavigationLink(destination: SelectShopView(tabIndex: ix) , tag: ix, selection: self.$tag , label: {
+                                Button(action: {self.tag = ix} , label: {
+                                    VStack{
+                                        Image("category/\(image[ix])")
+                                            .resizable().frame(width: 50, height: 50)
+                                        Text("\(Foods.foodName[ix])").foregroundColor(Color.black)
+                                    }
+                                }).buttonStyle(HomeButtonStyle(width: 80,height: 80 ,fontsize: 15))
+                                  
+                            })
+                            
+                         //Button(action: {self.tag = 1}, label: {Text("1")})
+                                    //Button(action: {self.tag = 1}, label: {Text("\(ix)")})
+
+                          }
+                        
                     }//LazyVGrid
         
     }
@@ -229,7 +239,7 @@ struct CustomerSelectionView : View {
                 }
             }
 
-        }.padding()
+        }.padding(10)
     }
 }
 

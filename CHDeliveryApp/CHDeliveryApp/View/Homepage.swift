@@ -183,16 +183,29 @@ struct ChangeSelectView: View {
 }
 
 struct TagView : View {
+    var TextList = ["재주문 많아요" , "알뜰배달 런칭" , "쿠폰 받기" , "복날엔 삼계탕" , "혼밥도 맛있게" , "고객 추천 가게","집밥","이번 주 최다 찜", "샐러드" ]
     var body : some View {
+        
         ScrollView(.horizontal , showsIndicators: false){
             HStack {
-                ForEach(0..<10) {
-                    Text("숫자 \($0)")
-                        .frame(width: 150)
-                        .foregroundColor(.black)
-                        .font(.system(size: 30 , weight: .bold))
-                        .background(Color.white)
+                ForEach(0..<9) {
+                    
+                    i in Button(action: {} , label: {
+                        HStack(spacing: 2){
+
+                            Image(systemName: "number").foregroundColor(Color.mint)
+                            Text("\(TextList[i])").font(.system(size: 20))
+
+                        }   .frame(width: 150, height: 35)
+                            .foregroundColor(.black)
+                            //.font(.system(size: 30 , weight: .bold))
+                            .background(Color.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color(hex: 0x4BFFC6 ), lineWidth:4)
+                            )
                         .cornerRadius(20)
+                    })
                 }
             }.padding(.horizontal, 25)
         }.frame(height: .infinity)
