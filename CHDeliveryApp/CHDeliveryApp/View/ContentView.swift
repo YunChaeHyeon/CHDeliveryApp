@@ -17,8 +17,30 @@ struct ContentView: View {
 
 var tabs = ["select" , "favorite", "home", "order" , "mapage"]
 
+class HomeState: ObservableObject {
+    @Published var isTap : Bool = false
+    
+    
+    func isHiddenTap() {
+        //if(isTap == false){
+            print("숨긴다")
+            isTap = true
+        //}
+
+    }
+    
+    func isVisibilityTap(){
+        //if(isTap == true){
+            print("보인다")
+            isTap = false
+        //}
+
+    }
+}
+
 struct BottomTapbarView: View {
     @State var tabSelection = "home"
+    @ObservedObject var homeState = HomeState()
     
     init() {
         UITabBar.appearance().isHidden = true
@@ -26,12 +48,14 @@ struct BottomTapbarView: View {
     
     //Location For each Curve..
     @State var xAxis: CGFloat = 0
+    @State var isTapHidden : Bool = false
     
     var body: some View {
-
         
         ZStack(alignment: Alignment(horizontal: .center, vertical: .bottom)){
+
             TabView(selection:$tabSelection){
+
                 
                 Color.yellow
                     .ignoresSafeArea(.all, edges: .all)
@@ -41,7 +65,8 @@ struct BottomTapbarView: View {
                     .ignoresSafeArea(.all, edges: .all)
                     .tag("favorite")
                 
-                HomeView().tag("home")
+                HomeView(homeState: homeState)
+                    .tag("home")
                 
                 Color.blue
                     .ignoresSafeArea(.all, edges: .all)
@@ -55,6 +80,7 @@ struct BottomTapbarView: View {
             }
             .animation(.easeOut(duration: 0.2), value: tabSelection)
         .transition(.slide)
+        
             
         //Custom Tab Bar ..
             
@@ -114,15 +140,16 @@ struct BottomTapbarView: View {
             .padding(.horizontal,30)
             .padding(.vertical)
             .background(Color.white.clipShape(CustomShape(xAxis: xAxis))            .cornerRadius(12))
+            .opacity(homeState.isTap ? 0:1)
 
             .padding(.horizontal)
             //Bottom Edge..
             .padding(.bottom, UIApplication.shared.windows.first?.safeAreaInsets.bottom)
 
-        }
         .ignoresSafeArea(.all, edges: .bottom)
+        }
     }
-    
+
     func getColor(image: String) ->Color {
         switch image {
         case "select":

@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct HomeView: View {
+    @ObservedObject var homeState : HomeState
+
     var body: some View {
-            TopView()
+        TopView(homeState: homeState)
             //HomeMiddleView()
     }
 }
@@ -53,12 +55,15 @@ public extension View {
 }
 
 struct TopView: View {
+    @ObservedObject var homeState : HomeState
+    
     var body: some View{
         NavigationView {
 
-            MiddleView()
+            MiddleView(homeState: homeState)
             
             .toolbar{
+                
                 // 1
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack{
@@ -95,14 +100,14 @@ struct TopView: View {
                 Color.mint
             })
 
-  }
+  } //NavigationView
  }
 }
 
-
-
 struct MiddleView: View {
+    @ObservedObject var homeState : HomeState
     @State var emailAddress: String = ""
+    
     var body: some View{
         ScrollView{
 
@@ -119,7 +124,7 @@ struct MiddleView: View {
                         .padding(.top, 20)
                     
                     
-                    MainOptionView()
+                MainOptionView(homeState: homeState)
                         .padding(20)
                     
                     SliderView()
@@ -230,10 +235,11 @@ struct HomeButtonStyle: ButtonStyle {
 
 struct MainOptionView : View {
     @State private var tag:Int? = nil
+    @ObservedObject var homeState : HomeState
     
     var body: some View {
         ZStack{
-            NavigationLink(destination: DeliveryView(), tag: 1, selection: self.$tag ) {
+            NavigationLink(destination: DeliveryView(homeState: homeState), tag: 1, selection: self.$tag ) {
               EmptyView()
             }
           
@@ -370,10 +376,10 @@ struct TodayDiscountView : View {
 }
 
     
-struct HomeView_Previews: PreviewProvider {
-    static var previews: some View {
-        HomeView()
-    }
-}
+//struct HomeView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        HomeView()
+//    }
+//}
     
 

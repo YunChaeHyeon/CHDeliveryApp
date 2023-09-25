@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct DeliveryView: View {
+    @ObservedObject var homeState : HomeState
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -19,7 +20,7 @@ struct DeliveryView: View {
                     
                     DeliveryGuideView()
                     
-                    DeliveryGridView()
+                    DeliveryGridView(homeState: homeState)
                     
                 }.background(Color.white)
                     .padding(20)
@@ -42,7 +43,8 @@ struct DeliveryView: View {
                         .frame(height : 120)
                         Color(hex: 0xEFEFEF)
                 
-            }).navigationBarBackButtonHidden(true)
+            })
+            .navigationBarBackButtonHidden(true)
             .toolbar {
 
                             // 2
@@ -50,6 +52,7 @@ struct DeliveryView: View {
                                 HStack{
                                     Button {
                                         print("Custom Action")
+                                        homeState.isVisibilityTap()
                                         dismiss()
 
                                     } label: {
@@ -70,6 +73,9 @@ struct DeliveryView: View {
 
                     }
                 }
+            .navigationBarBackground({
+                Color.white
+            })
     }
 }
 
@@ -137,7 +143,8 @@ struct Category {
 }
 
 struct DeliveryGridView : View {
-
+    @ObservedObject var homeState : HomeState
+    
     let image = ["porkfeet","soup","sushi","pizza","meat","moon","pasta","chicken","Jajangmyeon","rice","lunchbox","tteokbokki","hamburger","ricenoodles"]
     
     var Foods : Category = Category()
@@ -158,7 +165,9 @@ struct DeliveryGridView : View {
             
                         ForEach(0..<14) { ix in
                             NavigationLink(destination: SelectShopView(tabIndex: ix) , tag: ix, selection: self.$tag , label: {
-                                Button(action: {self.tag = ix} , label: {
+                                Button(action: {
+                                    self.tag = ix
+                                } , label: {
                                     VStack{
                                         Image("category/\(image[ix])")
                                             .resizable().frame(width: 50, height: 50)
@@ -167,6 +176,9 @@ struct DeliveryGridView : View {
                                 }).buttonStyle(HomeButtonStyle(width: 80,height: 80 ,fontsize: 15))
                                   
                             })
+                                .onAppear(perform: {
+                                        homeState.isHiddenTap()
+                                })
                             
                          //Button(action: {self.tag = 1}, label: {Text("1")})
                                     //Button(action: {self.tag = 1}, label: {Text("\(ix)")})
@@ -307,9 +319,9 @@ struct RandomShopView : View {
 }
 
 
-struct Delivery_Previews: PreviewProvider {
-    static var previews: some View {
-        DeliveryView()
-    }
-}
+//struct Delivery_Previews: PreviewProvider {
+//    static var previews: some View {
+//        DeliveryView()
+//    }
+//}
 

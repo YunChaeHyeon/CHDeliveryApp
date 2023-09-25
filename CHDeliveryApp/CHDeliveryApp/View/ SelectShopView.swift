@@ -9,8 +9,9 @@ import SwiftUI
 
 
 struct SelectShopView: View {
-    @Environment(\.dismiss) private var dismiss
     @State var tabIndex : Int
+   // @ObservedObject var homeState : HomeState
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         VStack{
@@ -157,15 +158,26 @@ extension View {
 }
 
 struct CategoryShopView : View {
-    
+    @State private var tag:Int? = nil
     var Foods : Category = Category()
     var CategoryNum : Int
     var ShopImage = ["Shop0","Shop1","Shop2","Shop3","Shop4","Shop5","Shop6","Shop7","Shop8","Shop9","Shop10","Shop11","Shop12","Shop13"]
-    
+//    ForEach(0..<14) { ix in
+//        NavigationLink(destination: SelectShopView(tabIndex: ix) , tag: ix, selection: self.$tag , label: {
+//            Button(action: {self.tag = ix} , label: {
+//                VStack{
+//                    Image("category/\(image[ix])")
+//                        .resizable().frame(width: 50, height: 50)
+//                    Text("\(Foods.foodName[ix])").foregroundColor(Color.black)
+//                }
+//            }).buttonStyle(HomeButtonStyle(width: 80,height: 80 ,fontsize: 15))
+//
+//        })
     var body: some View {
         VStack(spacing: 0){
         ForEach(0..<10) {
-            i in Button(action: {} , label: {
+            i in NavigationLink(destination: ShopView() , tag: i, selection: self.$tag , label: {
+                Button(action: {self.tag = i } , label: {
                 HStack(spacing: 0){
                         Image("Shop/\(ShopImage[CategoryNum])").resizable().frame(width: 100, height: 120 ,alignment: .leading)
                         
@@ -179,16 +191,19 @@ struct CategoryShopView : View {
                     }
 
             }).frame(width: .infinity, height: .infinity, alignment: .topLeading)
+            })
         }
       }
     }
-}
+
+      }
 
 
 
-struct SelectShopView_Previews: PreviewProvider {
-    static var previews: some View {
-        SelectShopView(tabIndex: 0)
-    }
-}
+
+//struct SelectShopView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        SelectShopView(tabIndex: 0)
+//    }
+//}
 
