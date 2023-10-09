@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ShopView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var tag:Int? = nil
+    
     var body: some View {
         
         ScrollView {
@@ -108,9 +110,12 @@ struct ShopView: View {
                         }//ToolbarItem
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: { } , label: {
-                            Image(systemName: "cart").resizable().frame(width: 20, height: 20)
-                        }).foregroundColor(Color.black)
+                    NavigationLink(destination: CartView(homeState:  HomeState() ,CartVM: CartViewModel()) , tag: 1, selection: self.$tag , label: {
+                        Button(action: {self.tag = 1} ) {
+                            Image(systemName: "cart")
+                                .foregroundColor(Color.black)
+                        }
+                    })
 
                     }
                 }

@@ -10,6 +10,7 @@ import SwiftUI
 struct DeliveryView: View {
     @ObservedObject var homeState : HomeState
     @Environment(\.dismiss) private var dismiss
+    @State private var tag:Int? = nil
     
     var body: some View {
             ScrollView{
@@ -20,7 +21,7 @@ struct DeliveryView: View {
                     
                     DeliveryGuideView()
                     
-                    DeliveryGridView(homeState: homeState)
+                    DeliveryGridView()
                     
                 }.background(Color.white)
                     .padding(20)
@@ -37,6 +38,9 @@ struct DeliveryView: View {
                 
                 Spacer(minLength: 100)
             }
+            .onAppear(perform: {
+                    homeState.isHiddenTap()
+            })
             .background(
                 VStack(spacing: .zero) {
                     Color.white
@@ -51,7 +55,6 @@ struct DeliveryView: View {
                             ToolbarItem(placement: .navigationBarLeading) {
                                 HStack{
                                     Button {
-                                        print("Custom Action")
                                         homeState.isVisibilityTap()
                                         dismiss()
 
@@ -67,9 +70,12 @@ struct DeliveryView: View {
                         }//ToolbarItem
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: { } , label: {
-                            Image(systemName: "cart").resizable().frame(width: 20, height: 20)
-                        }).foregroundColor(Color.black)
+                    NavigationLink(destination: CartView(homeState: homeState,CartVM: CartViewModel()) , tag: 1, selection: self.$tag , label: {
+                        Button(action: {self.tag = 1} ) {
+                            Image(systemName: "cart")
+                                .foregroundColor(Color.black)
+                        }
+                    })
 
                     }
                 }
@@ -143,7 +149,7 @@ struct Category {
 }
 
 struct DeliveryGridView : View {
-    @ObservedObject var homeState : HomeState
+    //@ObservedObject var homeState : HomeState
     
     let image = ["porkfeet","soup","sushi","pizza","meat","moon","pasta","chicken","Jajangmyeon","rice","lunchbox","tteokbokki","hamburger","ricenoodles"]
     
@@ -176,9 +182,8 @@ struct DeliveryGridView : View {
                                 }).buttonStyle(HomeButtonStyle(width: 80,height: 80 ,fontsize: 15))
                                   
                             })
-                                .onAppear(perform: {
-                                        homeState.isHiddenTap()
-                                })
+
+                                
                             
                          //Button(action: {self.tag = 1}, label: {Text("1")})
                                     //Button(action: {self.tag = 1}, label: {Text("\(ix)")})
