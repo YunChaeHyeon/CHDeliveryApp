@@ -9,7 +9,8 @@ import SwiftUI
 
 struct MyPageView : View {
     @ObservedObject var homeState : HomeState
-    @ObservedObject var userVM = UserViewModel()
+    @ObservedObject var userVM : UserViewModel
+    
     @State private var tag:Int? = nil
     
     var body: some View {
@@ -22,26 +23,43 @@ struct MyPageView : View {
                     ScrollView {
                             
                         ZStack {
-                            NavigationLink(destination: EditUserView(homeState: homeState , userVM: userVM) , tag: 2, selection: self.$tag ) {
+                            NavigationLink(destination: EditUserView(homeState : homeState , userVM: userVM) , tag: 2, selection: self.$tag ) {
                               EmptyView()
                             }
                             
                             VStack{
                                 HStack{
                                     //동그란 프로필 사진
-                                    Image("userDefault")
-                                        .resizable()
-                                        .frame(width: 80, height: 80)
-                                        .clipShape(RoundedRectangle(cornerRadius: 100))
+                                    if userVM.users.first == nil{
+                                        Image("userDefault")
+                                            .resizable()
+                                            .frame(width: 80, height: 80)
+                                            .clipShape(RoundedRectangle(cornerRadius: 100))
+                                    }else{
+                                        
+                                        //let userImage2 = UIImage(data: userVM.getImage() as! Data)
+                                        //let image2 = Image(uiImage: userImage2!)
+                                        //image2
+                                        userVM.imageInit()
+                                                .resizable()
+                                                .frame(width: 80, height: 80)
+                                                .clipShape(RoundedRectangle(cornerRadius: 100))
+                                        
+                                    }
+
                                     // 닉네임
                                     Button(action: {
                                         self.tag = 2
-                                        print("test")
                                         
                                     },
                                         label: {
                                             HStack{
-                                                Text(userVM.users[0].name)
+                                                if userVM.users.first == nil {
+                                                    Text("닉네임 설정 해주세요")
+                                                }else{
+                                                    Text(userVM.getname())
+                                                }
+                                                
                                                 Image(systemName: "chevron.right")
                                         }
                                     }).foregroundColor(Color.black)
@@ -113,6 +131,6 @@ struct MyPageView : View {
 
 struct MyPageView_Previews: PreviewProvider {
     static var previews: some View {
-        MyPageView(homeState: HomeState() )
+        MyPageView(homeState: HomeState() , userVM: UserViewModel())
     }
 }

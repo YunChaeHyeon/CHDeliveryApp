@@ -42,7 +42,7 @@ struct BottomTapbarView: View {
     
     @State var tabSelection = "home"
     @ObservedObject var homeState = HomeState()
-    //@ObservedObject var userVM = UserViewModel()
+    @ObservedObject var userVM = UserViewModel()
     //let configuration = Realm.Configuration(schemaVersion: 3)
     
     init() {
@@ -104,7 +104,7 @@ struct BottomTapbarView: View {
                     .ignoresSafeArea(.all, edges: .all)
                     .tag("order")
                 
-                MyPageView(homeState: homeState )
+                MyPageView(homeState: homeState , userVM: userVM )
                     .tag("mapage")
 
                 

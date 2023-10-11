@@ -8,31 +8,83 @@
 import SwiftUI
 
 struct EditUserView : View {
-
-    @ObservedObject var homeState : HomeState
-    @ObservedObject var userVM : UserViewModel
+    // 작성 혹은 편집한 메모의 저장 버튼을 누를 시 자동으로 창을 닫기 위해 선언
     @Environment(\.dismiss) private var dismiss
     
+    @ObservedObject var homeState : HomeState
+    @ObservedObject var userVM : UserViewModel
+
     @State var name : String = ""
-    //var user = userVM.users.first
-    //var userData : User
+    @State var image: Image?
+    
+    @State var selectedUIImage: UIImage?
+    @State var showImagePicker = false
+
+    @State var imageChangeWhether = false
+    
+    @State private var showingAlert = false
+    
+    func loadImage() {
+        guard let selectedImage = selectedUIImage else { return }
+        image = Image(uiImage: selectedImage)
+    }
+    
+    func imageInit() -> Image {
+        var image = Image("")
+        if(userVM.users.first == nil ){
+            image =  Image("userDefault")
+            
+        }else{
+            let userImage2 = UIImage(data: userVM.getImage() as! Data)
+            image = Image(uiImage: userImage2!)
+            
+        }
+        return image
+    }
     
     var body: some View {
+        
         var user = userVM.users.first
         
         VStack{
             //프로필
-            Image("userDefault")
-                .resizable()
-                .frame(width: 80, height: 80)
-                .clipShape(RoundedRectangle(cornerRadius: 100))
-                .padding(20)
+            Button(action: {
+                showImagePicker.toggle()
+            }, label: {
+                if let image = image{
+                    //이미지 골랐으면
+                    image
+                        .resizable()
+                        .frame(width: 80, height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 100))
+                }
+                else{
+                    //DB에 이미지 있으면 NSData래핑
+                    userVM.imageInit()
+                        .resizable()
+                        .frame(width: 80, height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 100))
+//                    let userImage2 = UIImage(data: userVM.getImage() as! Data)
+//                    let image2 = Image(uiImage: userImage2!)
+//                    image2
+//                            .resizable()
+//                            .frame(width: 80, height: 80)
+//                            .clipShape(RoundedRectangle(cornerRadius: 100))
+                }
+
+            }).sheet(isPresented: $showImagePicker, onDismiss: {
+                loadImage()
+                imageChangeWhether = true
+            }) {
+                ImagePicker(image: $selectedUIImage)
+            }
+            
             //닉네임
             HStack{
                 Spacer()
                 Text("닉네임").foregroundColor(Color.black).padding(.trailing,20)
                 
-                TextField("닉네임", text: $name)
+                TextField("\(userVM.getname())", text: $name)
                     .frame(width: 120,height: 40)
                     //.textFieldStyle(RoundedBorderTextFieldStyle())
                     .fixedSize(horizontal: true, vertical: false)
@@ -43,16 +95,30 @@ struct EditUserView : View {
             Spacer()
             
             Button(action: {
-                //userVM.editMemo(old: user[0], name: "YCH")
-                if(user == nil){
-                    print("user == nil")
-                    userVM.add(name: name)
+                if(name == ""){
+                    print("name = null ")
+                    self.showingAlert = true
+                    //userVM.add(name: name)
                 }else{
-                    print("user != nil")
-                    userVM.editMemo(old: user! , name: name)
+                    if(user == nil){
+                        print("user == nil")
+                        userVM.add(name: name)
+                    }else{
+                        self.showingAlert = false
+                        print("user != nil")
+                        if imageChangeWhether == false {
+                            print("imageChangeWhether = false")
+                            selectedUIImage = userVM.getUIImage()
+                        }
+                        let imageData = selectedUIImage!.jpegData(compressionQuality: 0.5)! as NSData
+
+                        userVM.editMemo(old: user! , name: name , userImage: imageData)
+                    
+                    }
+
+                    dismiss()
                 }
                 
-                //userVM.delete(old: user[0])
             }, label: {
                 Text("변경 완료").foregroundColor(Color.white).font(.system(size: 20, weight: .bold))
                     .frame(width: 200, height: 40)
@@ -61,7 +127,9 @@ struct EditUserView : View {
                     .padding()
             })
             .frame(maxHeight: .infinity, alignment: .bottom)
-            
+            .alert(isPresented: $showingAlert) {
+                Alert(title: Text(""), message: Text("닉네임을 입력해주세요"), dismissButton: .default(Text("네")))
+            }
             
             
         }//VStack
@@ -96,6 +164,6 @@ struct EditUserView : View {
 
 struct EditUserView_Previews: PreviewProvider {
     static var previews: some View {
-        EditUserView(homeState: HomeState(), userVM: UserViewModel())
+        EditUserView(homeState: HomeState(),userVM: UserViewModel())
     }
 }
