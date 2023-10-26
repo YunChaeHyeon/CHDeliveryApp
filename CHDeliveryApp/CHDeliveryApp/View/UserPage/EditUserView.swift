@@ -29,22 +29,9 @@ struct EditUserView : View {
         image = Image(uiImage: selectedImage)
     }
     
-    func imageInit() -> Image {
-        var image = Image("")
-        if(userVM.users.first == nil ){
-            image =  Image("userDefault")
-            
-        }else{
-            let userImage2 = UIImage(data: userVM.getImage() as! Data)
-            image = Image(uiImage: userImage2!)
-            
-        }
-        return image
-    }
-    
     var body: some View {
         
-        var user = userVM.users.first
+        let user = userVM.users.first
         
         VStack{
             //프로필
@@ -156,7 +143,6 @@ struct EditUserView : View {
                                  }
                             }
                        }//ToolbarItem.
-            
             }
         
     }

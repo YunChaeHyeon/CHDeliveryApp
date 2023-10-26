@@ -10,7 +10,7 @@ import SwiftUI
 struct ShopView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var tag:Int? = nil
-    
+
     var body: some View {
         
         ScrollView {
@@ -69,7 +69,7 @@ struct ShopView: View {
                 
                 //2 탭바 : 배달주문 / 포장/방문 주문
                 //배달주문 최소주문금액 , 결제 방법 , 배달 시간 , 배달팁
-                deliveryOrpackagingTopTabBar(tabIndex: 0)
+                deliveryOrpackagingTopTabBar(storeRegiVM: StoreRegisterViewModel() , tabIndex: 0, isText: true)
                 //최소주문금액 /이용방법 /픽업 시간/ 위치 안내 (지도) / 결제방법
             } //VStack
             .padding(10)
@@ -77,7 +77,7 @@ struct ShopView: View {
             
             VStack{
                 //3 탭바 : 메뉴 / 정보 / 리뷰
-                MenuOrInformaOrReview(tabIndex: 0)
+                MenuOrInformaOrReview(storeRegiVM: StoreRegisterViewModel() ,tabIndex: 0 , isStoreRegister: false)
             }.background(Color.white)
         }
             //.background(Color(hex: 0xEFEFEF))//ScrollView
@@ -128,7 +128,9 @@ struct ShopView: View {
 }
 
 struct MenuOrInformaOrReview : View {
+    @ObservedObject var storeRegiVM : StoreRegisterViewModel
     @State var tabIndex: Int
+    var isStoreRegister : Bool
     
     @State private var tag:Int? = nil
     
@@ -143,55 +145,174 @@ struct MenuOrInformaOrReview : View {
                 onButtonTapped(index: 1)
             }
             Spacer()
-            TabBarButton(text: "리뷰", isSelected: .constant(tabIndex == 2)).onTapGesture {
-                onButtonTapped(index: 2)
+            if(isStoreRegister == false){
+                TabBarButton(text: "리뷰", isSelected: .constant(tabIndex == 2)).onTapGesture {
+                    onButtonTapped(index: 2)
+                }
+                Spacer()
             }
-            Spacer()
+
         }
     .border(width: 1, edges: [.bottom], color: .black)
-    
-    if(tabIndex == 0){
-        VStack{
-            
-            Text("대표 메뉴")
-            ForEach(0..<14) {
-                i in NavigationLink(destination: SelectMenuView() , tag: i, selection: self.$tag , label: {
-                    Button(action: {self.tag = i } , label: {
-                    HStack{
-                        VStack{
-                            Text("New 메뉴이름").font(.system(size: 20 , weight: .bold))
-                                .foregroundColor(Color.black)
-                            Text("음식 설명").foregroundColor(Color.gray)
-                        }
-                        Image("food/food1")
-                    }
-                        
-                })
-                })
-            }
-        }
-    }else if(tabIndex == 1){
-        VStack{
-            Text("가게 정보")
-
-        }
-    }else{
-        VStack{
-            Text("리뷰")
-
-        }
-    }
         
-    }
+        if(isStoreRegister == false){
+                //가게 찾아 볼 때
+                if(tabIndex == 0){
+                    VStack{
+                        Text("대표 메뉴")
+                        ForEach(0..<14) {
+                            i in NavigationLink(destination: SelectMenuView() , tag: i, selection: self.$tag , label: {
+                                Button(action: {self.tag = i } , label: {
+                                HStack{
+                                    VStack{
+                                        Text("New 메뉴이름").font(.system(size: 20 , weight: .bold))
+                                            .foregroundColor(Color.black)
+                                        Text("음식 설명").foregroundColor(Color.gray)
+                                    }
+                                    Image("food/food1")
+                                }
+                                    
+                            })
+                            })
+                        }
+                    }
+                }else if(tabIndex == 1){
+                    VStack{
+                        Text("가게 정보")
+
+                    }
+                }else{
+                    VStack{
+                        Text("리뷰")
+
+                    }
+                }
+        }else{
+            //가게 정보 등록시
+            if(tabIndex == 0){
+                NavigationLink(destination: RegisterMenuView(storeRegiVM: storeRegiVM) , tag: 0, selection: self.$tag , label: {
+                    Button(action: {
+                        self.tag = 0
+                    }, label: {
+                        VStack{
+                            Text("가게 메뉴 등록").foregroundColor(Color.black)
+                            Image(systemName: "plus.app.fill")
+                                .foregroundColor(Color.black)
+                                .font(.system(size: 50))
+                        }
+
+                    }).padding(20)
+                })
+                
+            }else{
+                
+                Button(action: {
+                }, label: {
+                    VStack{
+                        Text("가게 정보 등록").foregroundColor(Color.black)
+                        Image(systemName: "plus.app.fill")
+                            .foregroundColor(Color.black)
+                            .font(.system(size: 50))
+                    }
+
+                }).padding(20)
+                
+            }
+            
+        }
+    
+ 
+        
+  }
+    
+    
     private func onButtonTapped(index: Int) {
         withAnimation { tabIndex = index }
     }
 }
     
+struct TextOrTextField : View {
+    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    
+    @State var isText : Bool
+    @State var textTilte : String
+    var saveTextNumber : Int
+    
+    var options : [String] = ["바로결제","만나서 결제","바로결제 , 만나서 결제"]
+    
+//    init(storeRegiVM : StoreRegisterViewModel , isText : Bool , textTilte : String , saveTextNumber : Int){
+//        self.storeRegiVM = storeRegiVM
+//        self.isText = isText
+//        self.textTilte = textTilte
+//        self.saveTextNumber = saveTextNumber
+//        storeRegiVM.payMethod = options[0]
+//    }
+    
+    var body: some View {
+        if(isText){
+            Text("불러오기")
+        }else{
+            switch(saveTextNumber) {
+            case 1:
+                TextField(textTilte , value: $storeRegiVM.minDelivery , format: .number)
+                    .frame(width: 80)
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .fixedSize(horizontal: true, vertical: false)
+                    .multilineTextAlignment(.center)
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 16)
+                    .background(borderStyleView())
+            case 2:
+                HStack{
+                    Picker("결제 방법" , selection: $storeRegiVM.payMethod){
+                        ForEach(options , id: \.self){ option in
+                            Text(option).foregroundColor(Color.mint)
+                            
+                        }
+                    }.padding(.leading , 10)
+                        .accentColor(.mint)
+                    Image(systemName: "chevron.right").foregroundColor(Color.mint)
+                        .padding(.trailing ,5)
+                        
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(.mint, lineWidth: 2)
+                )
+
+            case 3:
+                TextField(textTilte , value : $storeRegiVM.minTime , format: .number)
+                    .frame(width: 80)
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .fixedSize(horizontal: true, vertical: false)
+                    .multilineTextAlignment(.center)
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 16)
+                    .background(borderStyleView())
+            case 4:
+                TextField(textTilte , value: $storeRegiVM.tip , format: .number )
+                    .frame(width: 80)
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .fixedSize(horizontal: true, vertical: false)
+                    .multilineTextAlignment(.center)
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 16)
+                    .background(borderStyleView())
+                
+            default:
+                Text("No Number")
+            }
+
+        }
+        
+
+    }
+}
 
 struct deliveryOrpackagingTopTabBar: View {
-    
+    @ObservedObject var storeRegiVM : StoreRegisterViewModel
     @State var tabIndex: Int
+    @State var isText : Bool
     
     var body: some View {
             HStack(spacing: 20) {
@@ -211,24 +332,27 @@ struct deliveryOrpackagingTopTabBar: View {
             VStack(alignment: .leading, spacing: 15){
                 HStack{
                     Text("최소 주문 금액").padding(.trailing, 20)
-                    Text("15,000원")
+                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "금액 입력", saveTextNumber: 1)
+                    Text("원")
                     Spacer()
                 }
                 HStack{
                     Text("결제 방법").padding(.trailing, 55)
-                    Text("바로결제, 만나서 결제")
+                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "", saveTextNumber: 2)
                 }
                 HStack{
                     Text("배달 시간").padding(.trailing, 55)
-                    Text("20~35분 소요 예상")
+                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "시간 입력", saveTextNumber: 3)
+                    Text("분 소요 예상")
                 }
 
                 HStack{
                     Text("배달팁").padding(.trailing, 75)
-                    Text("500원 ~ 2500원")
+                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "금액 입력", saveTextNumber: 4)
+                    Text("원")
                 }
                 
-            }
+            }.padding(.leading ,15)
         }else{
             VStack(alignment: .leading, spacing: 15){
                 HStack{
@@ -252,14 +376,14 @@ struct deliveryOrpackagingTopTabBar: View {
                 
             }
         }
-
-
+        
             
     }
     
     private func onButtonTapped(index: Int) {
         withAnimation { tabIndex = index }
     }
+    
 }
 
 struct ShopView_Previews: PreviewProvider {

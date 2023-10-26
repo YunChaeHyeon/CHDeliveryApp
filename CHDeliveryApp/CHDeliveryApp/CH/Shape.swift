@@ -24,3 +24,22 @@ struct RoundedCorner: Shape {
         return Path(path.cgPath)
     }
 }
+
+struct borderStyleView : View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: 16)
+          .strokeBorder(
+            LinearGradient(
+              gradient: .init(
+                colors: [
+                  Color.mint,
+                  Color(red: 226 / 255.0, green: 247 / 255.0, blue: 5 / 255.0)
+                ]
+              ),
+              startPoint: .topLeading,
+              endPoint: .bottomTrailing
+            )
+            //lineWidth: isEditing ? 4 : 2
+          )
+    }
+}

@@ -18,7 +18,6 @@ struct RefreshControl: View {
 
                  
     var body: some View {
-        var index = 0
         GeometryReader { geo in
             if (geo.frame(in: coordinateSpace).midY > 50) {
                 Spacer()

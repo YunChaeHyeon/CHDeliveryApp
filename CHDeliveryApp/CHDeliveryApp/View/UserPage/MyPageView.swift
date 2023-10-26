@@ -26,6 +26,10 @@ struct MyPageView : View {
                             NavigationLink(destination: EditUserView(homeState : homeState , userVM: userVM) , tag: 2, selection: self.$tag ) {
                               EmptyView()
                             }
+                            NavigationLink(destination: MyStoreRegisterView(homeState : homeState ) , tag: 3, selection: self.$tag ) {
+                              EmptyView()
+                            }
+
                             
                             VStack{
                                 HStack{
@@ -50,7 +54,6 @@ struct MyPageView : View {
                                     // 닉네임
                                     Button(action: {
                                         self.tag = 2
-                                        
                                     },
                                         label: {
                                             HStack{
@@ -96,7 +99,7 @@ struct MyPageView : View {
                             HStack{
                                 Spacer()
 
-                                Button(action: {}, label: {
+                                Button(action: {self.tag = 3}, label: {
                                     VStack{
                                         Image(systemName: "house.fill").foregroundColor(Color.mint)
                                         Text("My 가게 등록") }}).foregroundColor(Color.black)
