@@ -10,7 +10,6 @@ import SwiftUI
 struct ShopView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var tag:Int? = nil
-
     var body: some View {
         
         ScrollView {
@@ -69,6 +68,7 @@ struct ShopView: View {
                 
                 //2 탭바 : 배달주문 / 포장/방문 주문
                 //배달주문 최소주문금액 , 결제 방법 , 배달 시간 , 배달팁
+                //TestVMView(storeRegiVM: StoreRegisterViewModel())
                 deliveryOrpackagingTopTabBar(storeRegiVM: StoreRegisterViewModel() , tabIndex: 0, isText: true)
                 //최소주문금액 /이용방법 /픽업 시간/ 위치 안내 (지도) / 결제방법
             } //VStack
@@ -125,6 +125,14 @@ struct ShopView: View {
 
     }
 
+}
+
+
+struct TestVMView : View {
+    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    var body: some View {
+        Text("Hi")
+    }
 }
 
 struct MenuOrInformaOrReview : View {
@@ -190,19 +198,29 @@ struct MenuOrInformaOrReview : View {
         }else{
             //가게 정보 등록시
             if(tabIndex == 0){
-                NavigationLink(destination: RegisterMenuView(storeRegiVM: storeRegiVM) , tag: 0, selection: self.$tag , label: {
-                    Button(action: {
-                        self.tag = 0
-                    }, label: {
-                        VStack{
-                            Text("가게 메뉴 등록").foregroundColor(Color.black)
-                            Image(systemName: "plus.app.fill")
-                                .foregroundColor(Color.black)
-                                .font(.system(size: 50))
-                        }
+                VStack{
+                    ForEach(storeRegiVM.menus.indices , id:\.self){
+                        index in
+                        AddMenuView(storeRegiVM : storeRegiVM, Index: index)
+                        Divider().background(Color.blue)
+                    }
+                    
+                    NavigationLink(destination: RegisterMenuView(storeRegiVM) , tag: 0, selection: self.$tag , label: {
+                        Button(action: {
+                            self.tag = 0
+                        }, label: {
+                            VStack{
 
-                    }).padding(20)
-                })
+                                Text("가게 메뉴 등록").foregroundColor(Color.black)
+                                Image(systemName: "plus.app.fill")
+                                    .foregroundColor(Color.black)
+                                    .font(.system(size: 50))
+                            }
+
+                        }).padding(20)
+                    })
+                }
+
                 
             }else{
                 
@@ -230,6 +248,40 @@ struct MenuOrInformaOrReview : View {
         withAnimation { tabIndex = index }
     }
 }
+
+struct AddMenuView : View {
+    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    @State var Index : Int
+    var body: some View {
+
+        HStack{
+            
+            if(self.Index < self.storeRegiVM.menus.count){
+            Spacer()
+            VStack{
+                
+                    Text("\(storeRegiVM.menus[Index].menuName)").font(.system(size: 25 , weight: .bold))
+                        .foregroundColor(Color.black)
+                        .padding(.bottom , 5)
+                    Text("\(storeRegiVM.menus[Index].menuDefaultPrice)원").font(.system(size: 20 , weight: .bold))
+            }
+                
+            storeRegiVM.getMenuImage(index: Index)
+                .resizable()
+                .frame(width: 100, height: 100)
+            Spacer()
+            }
+            
+            Button(action: {
+                storeRegiVM.objectWillChange.send()
+                storeRegiVM.menus.remove(at: Index)
+            }, label: {Image(systemName: "trash.fill")
+                    .foregroundColor(Color.red)
+                    .font(.system(size: 20))
+            }).padding(.trailing , 15)
+        }
+    }
+}
     
 struct TextOrTextField : View {
     @ObservedObject var storeRegiVM : StoreRegisterViewModel
@@ -239,14 +291,7 @@ struct TextOrTextField : View {
     var saveTextNumber : Int
     
     var options : [String] = ["바로결제","만나서 결제","바로결제 , 만나서 결제"]
-    
-//    init(storeRegiVM : StoreRegisterViewModel , isText : Bool , textTilte : String , saveTextNumber : Int){
-//        self.storeRegiVM = storeRegiVM
-//        self.isText = isText
-//        self.textTilte = textTilte
-//        self.saveTextNumber = saveTextNumber
-//        storeRegiVM.payMethod = options[0]
-//    }
+    var categorys : [String] = ["족발 보쌈" , "찜 탕 찌개" , "일식", "피자","고기","야식","양식","치킨","중식","백반","도시락","분식","패스트푸드","아시안"]
     
     var body: some View {
         if(isText){
@@ -264,6 +309,23 @@ struct TextOrTextField : View {
                     .background(borderStyleView())
             case 2:
                 HStack{
+                    Picker("카테고리" , selection: $storeRegiVM.storeCategory){
+                        ForEach(categorys , id: \.self){ category in
+                            Text(category).foregroundColor(Color.green)
+                            
+                        }
+                    }.padding(.leading , 10)
+                        .accentColor(.green)
+                    Image(systemName: "chevron.right").foregroundColor(Color.green)
+                        .padding(.trailing ,5)
+                        
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(.green, lineWidth: 2)
+                )
+            case 3:
+                HStack{
                     Picker("결제 방법" , selection: $storeRegiVM.payMethod){
                         ForEach(options , id: \.self){ option in
                             Text(option).foregroundColor(Color.mint)
@@ -280,7 +342,7 @@ struct TextOrTextField : View {
                         .stroke(.mint, lineWidth: 2)
                 )
 
-            case 3:
+            case 4:
                 TextField(textTilte , value : $storeRegiVM.minTime , format: .number)
                     .frame(width: 80)
                     .textFieldStyle(PlainTextFieldStyle())
@@ -289,7 +351,7 @@ struct TextOrTextField : View {
                     .padding(.vertical, 5)
                     .padding(.horizontal, 16)
                     .background(borderStyleView())
-            case 4:
+            case 5:
                 TextField(textTilte , value: $storeRegiVM.tip , format: .number )
                     .frame(width: 80)
                     .textFieldStyle(PlainTextFieldStyle())
@@ -331,24 +393,28 @@ struct deliveryOrpackagingTopTabBar: View {
         if(tabIndex == 0){
             VStack(alignment: .leading, spacing: 15){
                 HStack{
+                    Text("카테고리").padding(.trailing, 59)
+                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "", saveTextNumber: 2)
+                }
+                HStack{
+                    Text("결제 방법").padding(.trailing, 55)
+                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "", saveTextNumber: 3)
+                }
+                HStack{
                     Text("최소 주문 금액").padding(.trailing, 20)
                     TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "금액 입력", saveTextNumber: 1)
                     Text("원")
                     Spacer()
                 }
                 HStack{
-                    Text("결제 방법").padding(.trailing, 55)
-                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "", saveTextNumber: 2)
-                }
-                HStack{
                     Text("배달 시간").padding(.trailing, 55)
-                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "시간 입력", saveTextNumber: 3)
+                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "시간 입력", saveTextNumber: 4)
                     Text("분 소요 예상")
                 }
 
                 HStack{
                     Text("배달팁").padding(.trailing, 75)
-                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "금액 입력", saveTextNumber: 4)
+                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "금액 입력", saveTextNumber: 5)
                     Text("원")
                 }
                 

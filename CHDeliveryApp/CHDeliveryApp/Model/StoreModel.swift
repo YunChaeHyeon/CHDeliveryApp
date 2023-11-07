@@ -13,7 +13,7 @@ class MenuOptionList : Object {
     @objc dynamic var menuPrice : Int = 0
 }
 
-class MenuOptions : Object {
+class MenuOption : Object {
     @objc dynamic var menuOptionsTilte : String = ""
     var menuOptionList = List<MenuOptionList>()
 }
@@ -31,12 +31,13 @@ class MenuRequired : Object {
 class Menu : Object {
     @objc dynamic var menuImage: NSData? = nil
     @objc dynamic var menuName : String = ""
+    @objc dynamic var menuDefaultPrice : Int = 0
     
     //아래가 추가의 필수는 아님
     //가격 선택 필수
     var menuRequired = List<MenuRequired>()
     //가격 선택 추가
-    var menuOptions = List<MenuOptions>()
+    var menuOptions = List<MenuOption>()
 }
 
 extension Menu  {
@@ -57,8 +58,10 @@ extension Menu  {
 
 class Store : Object {
     
+   
     @objc dynamic var storeMainImage: NSData? = nil
     @objc dynamic var storeName: String = "Null"
+    @objc dynamic var storeCategory : String = "한식"
     @objc dynamic var minDelivery: Int = 0
     @objc dynamic var payMethod : String = "Null"
     @objc dynamic var minTime: Int = 0

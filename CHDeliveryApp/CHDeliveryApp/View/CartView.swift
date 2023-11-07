@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CartView: View {
     @ObservedObject var homeState : HomeState
+    
     @StateObject var CartVM = CartViewModel()
     @Environment(\.dismiss) private var dismiss
     

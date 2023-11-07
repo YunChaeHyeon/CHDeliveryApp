@@ -12,27 +12,27 @@ struct RegisterMenuView : View {
     
     @ObservedObject var storeRegiVM : StoreRegisterViewModel
     
-    @State var image : Image?
+    @State var menuImage : Image?
     @State var selectedUIImage : UIImage?
     @State var showImagePicker = false
     
     @State var TestNum : Int = 0
     @State var deleteButtonClicked = false
     
+    init(_ storeRegiVM : StoreRegisterViewModel ){
+        self.storeRegiVM = storeRegiVM
+    }
+    
     func loadImage() {
         guard let selectedImage = selectedUIImage else { return }
-        image = Image(uiImage: selectedImage)
+        menuImage = Image(uiImage: selectedImage)
         
         let imageData = selectedUIImage!.jpegData(compressionQuality: 0.5)! as NSData
-        storeRegiVM.storeImage = imageData
+        storeRegiVM.menuImage = imageData
     }
         
     private func deleteItem(at indexSet: IndexSet) {
-        self.storeRegiVM.menuRequirName.remove(atOffsets: indexSet)
-    }
-    
-    func removeOption(at offsets: IndexSet){
-        storeRegiVM.Options.remove(atOffsets: offsets)
+        //self.storeRegiVM.menuRequirName.remove(atOffsets: indexSet)
     }
     
     var body: some View {
@@ -45,7 +45,7 @@ struct RegisterMenuView : View {
                         Button(action: {
                             showImagePicker.toggle()
                         }, label: {
-                            if let image = image{
+                            if let image = menuImage{
                                 image
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
@@ -96,7 +96,7 @@ struct RegisterMenuView : View {
                     HStack{
                         Text("기본가격 ").font(.system(size:20 , weight: .bold))
                         Spacer()
-                        TextField("메뉴 가격 입력", text: $storeRegiVM.menuName)
+                        TextField("메뉴 가격 입력", value: $storeRegiVM.menuDefaultPrice , format: .number)
                             .frame(width: 100)
                             .textFieldStyle(PlainTextFieldStyle())
                             .fixedSize(horizontal: true, vertical: false)
@@ -136,32 +136,25 @@ struct RegisterMenuView : View {
                 })
 //===============================================================================================
                     VStack{
-//                            ForEach(Array(storeRegiVM.menuRequirName.enumerated()), id: \.element) { index, element in
-//
-//                                //Text(element.description)
-//                                AddMenuRequiredView(storeRegiVM : storeRegiVM , Index: index)
-//                                Text("\(index)")
-//                                Divider().background(Color.mint)
-//                            }.onDelete(perform: deleteItem)
 
                         //****
-                        ForEach(storeRegiVM.Requireds.indices , id:\.self){ index in
+                        ForEach(storeRegiVM.menuRequireds.indices , id:\.self){ index in
                                 AddMenuRequiredView(storeRegiVM : storeRegiVM , Index: index)
                             Divider().background(Color.mint)
 
                         }
 
-                }
+                    }
 
 
                 //필수 추가
                     Button(action: {
 
-                        storeRegiVM.Requireds.append(Required(id: UUID(), title: ""))
-                        for (index, value) in storeRegiVM.menuRequirName.enumerated() {
-                            print((index, value))
-
-                        }
+                        storeRegiVM.menuRequireds.append( MenuRequired() )
+//                        for (index, value) in storeRegiVM.menuRequirName.enumerated() {
+//                            print((index, value))
+//
+//                        }
                     }, label: {
                         VStack{
                             Text("필수 사항 등록").foregroundColor(Color.black)
@@ -175,7 +168,7 @@ struct RegisterMenuView : View {
 //================================================================================================
                     Divider().background(Color.black)
                     VStack{
-                        ForEach(storeRegiVM.Options.indices , id:\.self){ index in
+                        ForEach(storeRegiVM.menuOptions.indices , id:\.self){ index in
                                 AddMenuOptionsView(storeRegiVM : storeRegiVM , Index: index)
                                 Divider().background(Color.mint)
                         }
@@ -184,8 +177,8 @@ struct RegisterMenuView : View {
                 //선택 추가
                     Button(action: {
 
-                        storeRegiVM.Options.append(Option(id: UUID()))
-                        for (index, value) in storeRegiVM.Options.enumerated() {
+                        storeRegiVM.menuOptions.append(MenuOption())
+                        for (index, value) in storeRegiVM.menuOptions.enumerated() {
                             print((index, value))
                         }
                     }, label: {
@@ -204,18 +197,25 @@ struct RegisterMenuView : View {
             
             MenuAddButton(storeRegiVM: storeRegiVM)
         }//ZStack
-   }
+        .onAppear(){
+            storeRegiVM.menuImage = nil
+            storeRegiVM.menuName = ""
+            storeRegiVM.menuDefaultPrice = 0
+        }
+    }
 }
 
 struct MenuAddButton : View {
     @ObservedObject var storeRegiVM: StoreRegisterViewModel
-
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
 
         HStack{
 
                 Button(action: {
-                    //storeRegiVM.addMenu()
+                    storeRegiVM.addMenu()
+                    dismiss()
                 }, label: {
                     HStack{
                         Text("메뉴 등록하기")
@@ -237,6 +237,7 @@ struct AddMenuRequiredView : View {
     var Index : Int
     @FocusState var focused: Bool
     @State var TestNum : Int = 0
+    var listIndexTest : Int = 0
     
     var body: some View {
         
@@ -245,8 +246,7 @@ struct AddMenuRequiredView : View {
                 Spacer()
                 
                 Button(action: {
-                    //storeRegiVM.Requireds[Index].RequiredLists.removeAll()
-                    storeRegiVM.Requireds.remove(at: Index)
+                    storeRegiVM.menuRequireds.remove(at: Index)
                 }, label: {Image(systemName: "trash.fill")
                         .foregroundColor(Color.red)
                         .font(.system(size: 20))
@@ -256,7 +256,9 @@ struct AddMenuRequiredView : View {
             
             HStack{
                 
-                TextField("필수 메뉴 제목", text: Binding(get:  {  self.Index < self.storeRegiVM.Requireds.count ? self.storeRegiVM.Requireds[Index].title : "" } ,set : {storeRegiVM.Requireds[Index].title = $0}))
+                TextField("필수 메뉴 제목", text: Binding(get:  {  self.Index < self.storeRegiVM.menuRequireds.count ? self.storeRegiVM.menuRequireds[Index].menuRequitedTilte : "" } ,set : {
+                    storeRegiVM.objectWillChange.send()
+                    storeRegiVM.menuRequireds[Index].menuRequitedTilte = $0}))
                         .frame(width: 100)
                         .textFieldStyle(PlainTextFieldStyle())
                         .fixedSize(horizontal: true, vertical: false)
@@ -273,22 +275,22 @@ struct AddMenuRequiredView : View {
             
             //=====================================================================
             
-                if(Index < storeRegiVM.Requireds.count){
-                    ForEach(storeRegiVM.Requireds[Index].RequiredLists.indices , id:\.self){ listindex in
-                            AddMenuRequiredListView(storeRegiVM : storeRegiVM , Index2: Index , listIndex: listindex)
-                            Divider().background(Color.orange)
-                        
+                if(Index < storeRegiVM.menuRequireds.count){
+                    VStack{
+                        ForEach(storeRegiVM.menuRequireds[self.Index].menuRequiredList.indices , id:\.self){ listindex in
+
+                            AddMenuRequiredListView(storeRegiVM : storeRegiVM , Index2: self.Index , listIndex: listindex)
+                        }
                     }
+
                 }
+
         
             //=====================================================================
             Button(action: {
-                storeRegiVM.Requireds[Index].RequiredLists.append(RequiredList(id: UUID(), title : ""))
-                for (index, value) in storeRegiVM.Requireds[Index].RequiredLists.enumerated() {
-                    print("index: [\(index)] / title: \(storeRegiVM.Requireds[Index].RequiredLists[index].title)")
-                    print("index , value: ")
-                    print((index, value))
-                }
+                storeRegiVM.objectWillChange.send()
+                storeRegiVM.menuRequireds[self.Index].menuRequiredList.append(MenuRequiredList())
+
             }, label: {
                 VStack{
                     Text("필수 목록 등록").foregroundColor(Color.black)
@@ -301,6 +303,7 @@ struct AddMenuRequiredView : View {
         }//VStack
     }
 }
+
 
 struct AddMenuRequiredListView : View {
     @ObservedObject var storeRegiVM: StoreRegisterViewModel
@@ -318,15 +321,14 @@ struct AddMenuRequiredListView : View {
     var body: some View {
         //추후 onCommit -> onEditingChanged 로 변경 포커스 받으면 false 안받으면 true 커밋
         HStack{
-//            TextField("목록 입력", text: $title , onCommit: {
-//                self.storeRegiVM.Requireds[self.Index2].RequiredLists[self.listIndex].title = title })
-            
                 TextField("목록 입력", text:  Binding(get:  {
-                    self.Index2 < self.storeRegiVM.Requireds.count && self.listIndex < self.storeRegiVM.Requireds[Index2].RequiredLists.count && self.Index2 < self.storeRegiVM.Requireds[Index2].RequiredLists.count ?
-                        self.storeRegiVM.Requireds[Index2].RequiredLists[listIndex].title : ""
+                    self.Index2 < self.storeRegiVM.menuRequireds.count && self.listIndex < self.storeRegiVM.menuRequireds[Index2].menuRequiredList.count && self.Index2 < self.storeRegiVM.menuRequireds[Index2].menuRequiredList.count ?
+                    self.storeRegiVM.menuRequireds[Index2].menuRequiredList[listIndex].menuRequiredTitle : ""
 
                 }
-                                                  ,set : {storeRegiVM.Requireds[Index2].RequiredLists[listIndex].title = $0}))
+                                                  ,set : {
+                    storeRegiVM.objectWillChange.send()
+                    storeRegiVM.menuRequireds[Index2].menuRequiredList[listIndex].menuRequiredTitle = $0}))
                         .frame(width: 80)
                         .textFieldStyle(PlainTextFieldStyle())
                         .fixedSize(horizontal: true, vertical: false)
@@ -339,10 +341,11 @@ struct AddMenuRequiredListView : View {
                 Spacer()
 
 //                    .focused($focused)
-            //추후 price -> Int로 형변환 바람.
-            TextField("가격 입력", text: $price , onCommit: {
-                self.storeRegiVM.Requireds[self.Index2].RequiredLists[self.listIndex].priceString = price
-            })
+
+            TextField("가격 입력", value : Binding(get: {
+                self.Index2 < self.storeRegiVM.menuRequireds.count && self.listIndex < self.storeRegiVM.menuRequireds[Index2].menuRequiredList.count && self.Index2 < self.storeRegiVM.menuRequireds[Index2].menuRequiredList.count ?
+                self.storeRegiVM.menuRequireds[Index2].menuRequiredList[listIndex].menuPrice : 0
+            } , set: {self.storeRegiVM.menuRequireds[Index2].menuRequiredList[listIndex].menuPrice = $0}), formatter: NumberFormatter())
                     .frame(width: 80)
                     .textFieldStyle(PlainTextFieldStyle())
                     .fixedSize(horizontal: true, vertical: false)
@@ -356,17 +359,17 @@ struct AddMenuRequiredListView : View {
 
             
             Button(action: {
-                storeRegiVM.Requireds[Index2].RequiredLists.remove(at: listIndex)
+                storeRegiVM.objectWillChange.send()
+                storeRegiVM.menuRequireds[Index2].menuRequiredList.remove(at: listIndex)
             }, label: {
                 VStack{
+                    
                     Image(systemName: "delete.left.fill")
                         .foregroundColor(Color.red)
                         .font(.system(size: 20))
                 }
 
             })
-                
-        
             
         }.padding(.trailing, 20)
         
@@ -383,10 +386,8 @@ struct AddMenuOptionsView : View {
         VStack {
             HStack{
                 Spacer()
-                //Text("Index ; \(Index)")
-
                 Button(action: {
-                    storeRegiVM.Options.remove(at: Index)
+                    storeRegiVM.menuOptions.remove(at: Index)
                 }, label: {Image(systemName: "trash.fill")
                         .foregroundColor(Color.red)
                         .font(.system(size: 20))
@@ -396,7 +397,9 @@ struct AddMenuOptionsView : View {
             
             HStack{
                     
-                TextField("선택 메뉴 제목", text: Binding(get:  {  self.Index < self.storeRegiVM.Options.count ? self.storeRegiVM.Options[Index].title : "" } ,set : {storeRegiVM.Options[Index].title = $0}))
+                TextField("선택 메뉴 제목", text: Binding(get:  {  self.Index < self.storeRegiVM.menuOptions.count ? self.storeRegiVM.menuOptions[Index].menuOptionsTilte : "" } ,set : {
+                    storeRegiVM.objectWillChange.send()
+                    storeRegiVM.menuOptions[Index].menuOptionsTilte = $0}))
                         .frame(width: 100)
                         .textFieldStyle(PlainTextFieldStyle())
                         .fixedSize(horizontal: true, vertical: false)
@@ -409,12 +412,11 @@ struct AddMenuOptionsView : View {
     
                     Spacer()
                     
-
             }.padding(.horizontal,10) //HStack
             
             //=====================================================================
-            if(Index < storeRegiVM.Options.count){
-                ForEach(storeRegiVM.Options[Index].OptionsLists.indices , id:\.self){ listindex in
+            if(Index < storeRegiVM.menuOptions.count){
+                ForEach(storeRegiVM.menuOptions[Index].menuOptionList.indices , id:\.self){ listindex in
                         AddMenuOptionListView(storeRegiVM : storeRegiVM , Index2: Index , listIndex: listindex)
                         Divider().background(Color.orange)
 
@@ -423,7 +425,8 @@ struct AddMenuOptionsView : View {
             
 //            =====================================================================
             Button(action: {
-                storeRegiVM.Options[Index].OptionsLists.append(OptionList(id: UUID(), title: "OptionList"))
+                storeRegiVM.objectWillChange.send()
+                storeRegiVM.menuOptions[Index].menuOptionList.append(MenuOptionList())
             }, label: {
                 VStack{
                     Text("선택 목록 등록").foregroundColor(Color.black)
@@ -446,8 +449,14 @@ struct AddMenuOptionListView : View {
 
     var body: some View {
         HStack{
-            TextField("목록 입력", text: $title , onCommit: {
-                self.storeRegiVM.Options[self.Index2].OptionsLists[self.listIndex].title = title })
+            TextField("목록 입력", text:  Binding(get:  {
+                self.Index2 < self.storeRegiVM.menuOptions.count && self.listIndex < self.storeRegiVM.menuOptions[Index2].menuOptionList.count && self.Index2 < self.storeRegiVM.menuOptions[Index2].menuOptionList.count ?
+                self.storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuOptionTitle : ""
+
+            }
+                                              ,set : {
+                storeRegiVM.objectWillChange.send()
+                storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuOptionTitle = $0}))
                     .frame(width: 80)
                     .textFieldStyle(PlainTextFieldStyle())
                     .fixedSize(horizontal: true, vertical: false)
@@ -457,12 +466,12 @@ struct AddMenuOptionListView : View {
                     .background(borderStyleView())
                     .padding(.bottom , 10)
                     .padding(.horizontal,30)
-//                    .focused($focused)
             Spacer()
-            //추후 price -> Int로 형변환 바람.
-            TextField("가격 입력", text: $price , onCommit: {
-                self.storeRegiVM.Options[self.Index2].OptionsLists[self.listIndex].priceString = price
-            })
+
+            TextField("가격 입력", value : Binding(get: {
+                self.Index2 < self.storeRegiVM.menuOptions.count && self.listIndex < self.storeRegiVM.menuOptions[Index2].menuOptionList.count && self.Index2 < self.storeRegiVM.menuOptions[Index2].menuOptionList.count ?
+                self.storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuPrice : 0
+            } , set: {self.storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuPrice = $0}), formatter: NumberFormatter())
                     .frame(width: 80)
                     .textFieldStyle(PlainTextFieldStyle())
                     .fixedSize(horizontal: true, vertical: false)
@@ -476,12 +485,12 @@ struct AddMenuOptionListView : View {
 
 
             Button(action: {
-                storeRegiVM.Options[Index2].OptionsLists.remove(at: listIndex)
+                storeRegiVM.objectWillChange.send()
+                storeRegiVM.menuOptions[Index2].menuOptionList.remove(at: listIndex)
             }, label: {Image(systemName: "delete.left.fill")
                     .foregroundColor(Color.red)
                     .font(.system(size: 20))
             })
-
 
 
         }.padding(.trailing, 20)
@@ -490,6 +499,6 @@ struct AddMenuOptionListView : View {
 
 struct RegiMenuView_Previews: PreviewProvider {
     static var previews: some View {
-        RegisterMenuView(storeRegiVM: StoreRegisterViewModel() )
+        RegisterMenuView(StoreRegisterViewModel() )
     }
 }

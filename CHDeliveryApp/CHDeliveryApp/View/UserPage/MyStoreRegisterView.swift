@@ -77,6 +77,7 @@ struct MyStoreRegisterView : View {
                         .padding(.vertical, 12)
                         .padding(.horizontal, 16)
                         .background(borderStyleView())
+                    
 
                     //2 탭바 : 배달주문 / 포장/방문 주문
                     //배달주문 최소주문금액 , 결제 방법 , 배달 시간 , 배달팁
@@ -122,7 +123,7 @@ struct MyStoreRegisterView : View {
                     Color.white
             })
 
-            MyStoreRegiButton(storeRegiVM: storeRegiVM)
+            MyStoreRegiButton(homeState : homeState ,storeRegiVM: storeRegiVM)
 
         } // Zstack
 
@@ -130,16 +131,19 @@ struct MyStoreRegisterView : View {
     }
 }
 
-struct MyStoreRegiButton : View {
-    @ObservedObject var storeRegiVM: StoreRegisterViewModel
 
+struct MyStoreRegiButton : View {
+    @ObservedObject var homeState : HomeState
+    @ObservedObject var storeRegiVM: StoreRegisterViewModel
+    @Environment(\.dismiss) private var dismiss
     var body: some View {
 
         HStack{
 
                 Button(action: {
+                    homeState.isVisibilityTap()
                     storeRegiVM.add()
-
+                    dismiss()
                 }, label: {
                     HStack{
                         Text("가게 등록하기")

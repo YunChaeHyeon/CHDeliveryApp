@@ -134,6 +134,7 @@ struct MyPageView : View {
 
 struct MyPageView_Previews: PreviewProvider {
     static var previews: some View {
+        
         MyPageView(homeState: HomeState() , userVM: UserViewModel())
     }
 }
