@@ -179,7 +179,7 @@ struct MenuOrInformaOrReview : View {
                     VStack{
                         Text("대표 메뉴")
                         ForEach( Array(storeData.menus.enumerated()) , id : \.offset) {
-                            index, menu in NavigationLink(destination: SelectMenuView( cartVM : cartVM , MenuItem : menu) , tag: index , selection: self.$tag , label: {
+                            index, menu in NavigationLink(destination: SelectMenuView(storeData : storeData,cartVM : cartVM , MenuItem : menu) , tag: index , selection: self.$tag , label: {
                                 Button(action: {
                                     self.tag = index
                                 } , label: {

@@ -9,10 +9,9 @@ import SwiftUI
 
 
 struct SelectMenuView: View {
-    var Menuitems = ["소", "중", "대"]
-    var Menuprice = [1000,2000,3000]
-    
+    var storeData : Store
     @ObservedObject var cartVM : CartViewModel
+    var imageconversion : ImageConversion = ImageConversion()
     
     var MenuItem : Menu
     @State var checkMenu = [""]
@@ -26,54 +25,109 @@ struct SelectMenuView: View {
         ZStack(alignment: .bottom) {
             ScrollView{
                 VStack(alignment: .leading){
+                    if(MenuItem.menuImage != nil ){
+                        imageconversion.getImage(_image: MenuItem.menuImage! )
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .ignoresSafeArea(edges: .top)
+                            .frame(height: 200)
+                            .clipped()
+                            .padding(.bottom , 20)
+                    }
+
                     Text("\(MenuItem.menuName)").font(.system(size:20 , weight: .bold))
+                        .padding(.leading , 50)
+                        .padding(.bottom , 15)
                     Spacer()
                     HStack{
                         Text("가격")
                         Spacer()
                         Text("\(MenuItem.menuDefaultPrice)")
-                    }.font(.system(size: 18,weight: .bold))
-                }.padding(50)
+                    }.font(.system(size: 17,weight: .bold))
+                        .padding(.horizontal , 50)
+                        .padding(.bottom , 15)
+                }
                     .background(Color.white)
+                    .padding(.bottom , 10)
                 
                 //Radio Button !
                 VStack(alignment: .leading){
 
                     ForEach(MenuItem.menuRequired , id: \.self){ menuRequ in
-                        Text("\(menuRequ.menuRequitedTilte)")
-                        RadioButtonGroup(MenuRe : menuRequ , _lastPrice: _lastPrice) { selected in
-                        } priceCallback: {
-                            price , last in
-                             total = total + price
-                        }
+                        VStack{
+                            HStack{
+                                Text("\(menuRequ.menuRequitedTilte)")
+                                    .font(.system(size:18 , weight: .bold))
+                                Spacer()
+                                Text("필수")
+                                    .font(.system(size:13 , weight: .bold))
+                                    .foregroundColor(Color.blue)
+                                    .frame(width: 30,height:30)
+                                    .background(Color(hex: 0x92DCFF))
+                                    .cornerRadius(20)
+                            }
+                            .padding(.horizontal , 15)
+                            .padding(.top, 10)
+                            
+                            Divider()
+                                .background(Color.blue)
+                            
+                            RadioButtonGroup(MenuRe : menuRequ , _lastPrice: _lastPrice) { selected in
+                            } priceCallback: {
+                                price , last in
+                                 total = total + price
+                            }
+                        }.padding(.bottom , 15)
                     }
+                        .padding(10)
+                        .background(Color(hex: 0xC7EDFF))
 
-                }.background(Color.white)
-                    .padding(.bottom , 1)
-                
+                }.background(Color(hex:0xEFEFEF))
+                    .padding(.bottom , 3)
+                    .cornerRadius(20)
                 //check box Button !
                 Group{
                     VStack(alignment: .leading){
                         ForEach(MenuItem.menuOptions, id:\.self){ menuOption in
-                            Text("\(menuOption.menuOptionsTilte)")
-
-                            CheckboxGroup(items: Menuitems , Menuprice: Menuprice, MenuOp: menuOption){ Menu,price ,checkOption in
-                                print("checkOption : \(checkOption)")
-                                if(checkOption){
-                                    total = total + price
-                                }else{
-                                    total = total - price
+                            VStack{
+                                HStack{
+                                    Text("\(menuOption.menuOptionsTilte)")
+                                        .font(.system(size:18 , weight: .bold))
+                                    Spacer()
+                                    Text("선택")
+                                        .font(.system(size:13 , weight: .bold))
+                                        .foregroundColor(Color.gray)
+                                        .frame(width: 30,height:30)
+                                        .background(Color(hex: 0xDEDEDE))
+                                        .cornerRadius(20)
                                 }
+                                .padding(.horizontal , 15)
+                                .padding(.top, 10)
+                                
+                                Divider()
+                                    .background(Color.gray)
+                                  
+                                CheckboxGroup( MenuOp: menuOption){ Menu,price ,checkOption in
+                                    print("checkOption : \(checkOption)")
+                                    if(checkOption){
+                                        total = total + price
+                                    }else{
+                                        total = total - price
+                                    }
+                                }.padding(.bottom , 15)
                             }
+                        }.padding(10)
+                            .background(Color.white)
 
-                        }
-
-                    }.background(Color.white)
+                    }.background(Color(hex:0xEFEFEF))
+                        
+                        .cornerRadius(20)
                 }
 
             
                 
             } // ScrollView
+            .padding(.bottom , 50)
             .background(
                 VStack(spacing: .zero) {
                     Color.white
@@ -113,7 +167,7 @@ struct SelectMenuView: View {
             })
 
             //Cart In Button
-            CartIn(total: $total)
+            CartIn(cartVM : cartVM  , storeData: storeData , MenuItem : MenuItem , total: $total)
         } //ZStack
 
 
@@ -121,17 +175,30 @@ struct SelectMenuView: View {
 }
 
 struct CartIn : View {
+    @ObservedObject var cartVM : CartViewModel
+    var storeData : Store
+    var MenuItem : Menu
     @Binding var total : Int
+
     var body: some View {
         
         //Cart In Button
         HStack{
             VStack{
                 Text("배달 최소 주문 금액").foregroundColor(Color.gray)
-                Text("24,000")
+                Text("\(storeData.minDelivery)")
             }.padding(.leading ,5)
             Spacer()
-                Button(action: {}, label: {
+                Button(action: {
+                    cartVM.storeName = storeData.storeName
+                    cartVM.deliveryTime = storeData.minDelivery
+                    cartVM.menuName = MenuItem.menuName
+                    cartVM.menuImage = MenuItem.menuImage
+                    cartVM.price = total
+                    
+                    cartVM.addCart()
+                    print("CartIn")
+                }, label: {
                     HStack{
                         Text("\(total)")
                         Text("원 담기")
@@ -151,8 +218,6 @@ struct CartIn : View {
 }
 
 struct CheckboxGroup: View {
-    let items : [String]
-    let Menuprice : [Int]
     var MenuOp : MenuOption
     let callback: (String,Int,Bool)->()
 
@@ -288,7 +353,7 @@ struct RadioButton: View {
         selectedID: Int,
         size: CGFloat = 20,
         color: Color = Color.primary,
-        textSize: CGFloat = 14
+        textSize: CGFloat = 16
         ) {
         self.menuName = menuName
         self.id = id

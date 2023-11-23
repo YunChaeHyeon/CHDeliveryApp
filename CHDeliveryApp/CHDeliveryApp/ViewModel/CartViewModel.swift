@@ -26,9 +26,10 @@ class CartViewModel : ObservableObject {
         cart.menuImage = menuImage
         cart.price = price
         cart.count = count
-        cart.total = total
+        cart.total = price * count
         
         self.carts.append(cart)
+        Cart.addCart(cart)
     }
     
     func delCart(old : Cart) {

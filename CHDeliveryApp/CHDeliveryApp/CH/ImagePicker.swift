@@ -41,3 +41,16 @@ struct ImagePicker: UIViewControllerRepresentable {
         }
     }
 }
+
+struct ImageConversion {
+    func getImage(_image : NSData) -> Image {
+        var image = Image("")
+        if(_image != nil){
+            let ImageGet = UIImage(data : _image  as Data)
+            image = Image(uiImage: ImageGet!)
+        }else{
+            print("image null")
+        }
+        return image
+    }
+}
