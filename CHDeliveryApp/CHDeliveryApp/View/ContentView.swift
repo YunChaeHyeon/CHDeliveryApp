@@ -43,39 +43,12 @@ struct BottomTapbarView: View {
     @State var tabSelection = "home"
     @ObservedObject var homeState = HomeState()
     @ObservedObject var userVM = UserViewModel()
-    //let configuration = Realm.Configuration(schemaVersion: 3)
     
     init() {
         UITabBar.appearance().isHidden = true
-        
-        // Realm 가져오기
-        //let realm = try! Realm(configuration: configuration)
-        
-        //데이터 Create
-//        let user1 = User(id:1 , name: "CH")
-//        try! realm.write {
-//            realm.add(user1)
-//        }
-        
-        //데이터 Delete
-//        try! realm.write {
-//            let data = realm.objects(User.self)
-//            realm.delete(data)
-//        }
-        
-        //데이터 Update
-//        var users: Results<User>!
-//        try! realm.write {
-//            users[0].name = "YC"
-//        }
 
         // Realm 파일 위치
         print(Realm.Configuration.defaultConfiguration.fileURL!)
-        
-        //데이터 프린트 (Read)
-        //var users: Results<User>!
-        //users = realm.objects(User.self)
-        //print(users)
     }
     
     //Location For each Curve..

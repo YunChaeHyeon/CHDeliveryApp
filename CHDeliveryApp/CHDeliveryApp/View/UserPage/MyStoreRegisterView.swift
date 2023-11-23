@@ -81,14 +81,14 @@ struct MyStoreRegisterView : View {
 
                     //2 탭바 : 배달주문 / 포장/방문 주문
                     //배달주문 최소주문금액 , 결제 방법 , 배달 시간 , 배달팁
-                    deliveryOrpackagingTopTabBar(storeRegiVM: storeRegiVM, tabIndex: 0 , isText: false)
+                    deliveryOrpackagingTopTabBar(storeData: Store(), storeRegiVM: storeRegiVM, tabIndex: 0 , isStoreView: false)
                     //최소주문금액 /이용방법 /픽업 시간/ 위치 안내 (지도) / 결제방법
                 } //VStack
                 .background(Color.white)
 
                 VStack{
                     //3 탭바 : 메뉴 / 정보 / 리뷰
-                    MenuOrInformaOrReview(storeRegiVM: storeRegiVM,tabIndex: 0 , isStoreRegister: true)
+                    MenuOrInformaOrReview( storeData : Store() ,storeRegiVM: storeRegiVM,tabIndex: 0 , isStoreRegister: true)
                 }.background(Color.white)
             }
     //            //.background(Color(hex: 0xEFEFEF))//ScrollView
@@ -142,7 +142,7 @@ struct MyStoreRegiButton : View {
 
                 Button(action: {
                     homeState.isVisibilityTap()
-                    storeRegiVM.add()
+                    storeRegiVM.addStore()
                     dismiss()
                 }, label: {
                     HStack{

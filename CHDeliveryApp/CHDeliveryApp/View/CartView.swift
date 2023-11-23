@@ -82,7 +82,7 @@ struct CartOrderButton : View {
                 Button(action: {}, label: {
                     HStack{
                         Text("배달 주문하기")
-                        Text("\(CartVM.Total)원")
+                        Text("\(CartVM.total)원")
                     }
                     .font(.system(size:20 , weight: .bold))
                     .foregroundColor(Color.white)
@@ -123,8 +123,8 @@ struct CartShop : View {
             HStack{
                 Image("food/food1").frame(width: 100, height: 100)
                 VStack(alignment: .leading){
-                    Text("가격 : \(CartVM.Price)원")
-                    Text("\(CartVM.Total)원")
+                    Text("가격 : \(CartVM.price)원")
+                    Text("\(CartVM.total)원")
                 }.padding()
                 Spacer()
             }.padding(20)
@@ -142,7 +142,7 @@ struct CartShop : View {
                     }, label: {Image(systemName: "minus")})
                         .padding(.trailing,10)
                     
-                    Text("\(CartVM.Count)")
+                    Text("\(CartVM.count)")
                     
                     Button(action: {
                         CartVM.UpCount()

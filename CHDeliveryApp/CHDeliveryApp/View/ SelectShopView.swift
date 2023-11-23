@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-
 struct SelectShopView: View {
     @State var tabIndex : Int
-   // @ObservedObject var homeState : HomeState
     @Environment(\.dismiss) private var dismiss
     @State private var tag:Int? = nil
+    @ObservedObject var storeRegiVM = StoreRegisterViewModel()
     
     var body: some View {
         VStack{
@@ -27,7 +26,7 @@ struct SelectShopView: View {
             }.background(Color.white)
             ScrollView{
                 
-                CategoryShopView(CategoryNum: tabIndex).background(Color.white)
+                CategoryShopView(storeRegiVM: storeRegiVM, topTapNum: tabIndex).background(Color.white)
                 
                 Spacer(minLength: 100)
             }.background(Color(hex: 0xEFEFEF))
@@ -64,16 +63,6 @@ struct SelectShopView: View {
                     }
         }.background(Color(hex: 0xEFEFEF))
     
-    }
-}
-
-struct SecondView: View{
-    var body: some View{
-        ZStack{
-            Rectangle()
-                .foregroundColor(.yellow)
-            Text("SecondView")
-        }
     }
 }
 
@@ -114,46 +103,7 @@ struct TabBarButton: View {
     }
 }
 
-struct EdgeBorder: Shape {
 
-    var width: CGFloat
-    var edges: [Edge]
-
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        for edge in edges {
-            var x: CGFloat {
-                switch edge {
-                case .top, .bottom, .leading: return rect.minX
-                case .trailing: return rect.maxX - width
-                }
-            }
-
-            var y: CGFloat {
-                switch edge {
-                case .top, .leading, .trailing: return rect.minY
-                case .bottom: return rect.maxY - width
-                }
-            }
-
-            var w: CGFloat {
-                switch edge {
-                case .top, .bottom: return rect.width
-                case .leading, .trailing: return self.width
-                }
-            }
-
-            var h: CGFloat {
-                switch edge {
-                case .top, .bottom: return self.width
-                case .leading, .trailing: return rect.height
-                }
-            }
-            path.addPath(Path(CGRect(x: x, y: y, width: w, height: h)))
-        }
-        return path
-    }
-}
 
 extension View {
     func border(width: CGFloat, edges: [Edge], color: SwiftUI.Color) -> some View {
@@ -161,48 +111,140 @@ extension View {
     }
 }
 
+struct storeView : View {
+    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    var storeData : Store
+    
+    init(_ storeRegiVM : StoreRegisterViewModel , _ storeData : Store){
+        self.storeRegiVM = storeRegiVM
+        self.storeData = storeData
+    }
+    
+    var body: some View {
+        
+        HStack{
+            storeRegiVM.getStoreImage(store: storeData)
+                .resizable()
+                .scaledToFit()
+                .cornerRadius(10)
+                .frame(width: 100, height: 100)
+                .padding(.trailing , 20)
+            
+            VStack(alignment: .leading){
+                Text("\(storeData.storeName)")
+                    .font(.system(size: 20 , weight: .bold))
+                HStack{
+                    Text("배달 \(storeData.minTime)분")
+                        .padding(.trailing, 5)
+                    Text("배달팁 \(storeData.tip)")
+                }
+                Text("최소주문 \(storeData.minDelivery)원")
+                
+            }.foregroundColor(Color.black)
+
+            Spacer()
+        }.padding(10)
+    }
+}
+
+struct storeListView: View {
+    
+    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    var storeData : Store
+    var categoryName : String
+    var topTapNum : Int
+    init(_ storeRegiVM : StoreRegisterViewModel ,_ storeData : Store , _ categoryName : String , _ topTapNum : Int){
+        self.storeRegiVM = storeRegiVM
+        self.storeData = storeData
+        self.categoryName = categoryName
+        self.topTapNum = topTapNum
+    }
+    
+    var body: some View {
+        
+        HStack {
+            switch(topTapNum){
+            case 0:
+                if(categoryName == "족발 보쌈"){
+                    storeView(storeRegiVM, storeData)
+                }
+            case 1:
+                if(categoryName == "찜 탕 찌개"){
+                    storeView(storeRegiVM, storeData)
+                }
+            case 2:
+                if(categoryName == "일식"){
+                    storeView(storeRegiVM, storeData)
+                }
+            case 3:
+                if(categoryName == "피자"){
+                    storeView(storeRegiVM, storeData)
+                }
+            case 4:
+                if(categoryName == "고기"){
+                    storeView(storeRegiVM, storeData)
+                }
+            case 5:
+                if(categoryName == "야식" ){
+                    storeView(storeRegiVM, storeData)
+                }
+            case 6:
+                if(categoryName == "양식") {
+                    storeView(storeRegiVM, storeData)
+                }
+            case 7:
+                if(categoryName == "치킨") {
+                    storeView(storeRegiVM, storeData)
+                }
+            case 8:
+                if(categoryName == "중식") {
+                    storeView(storeRegiVM, storeData)
+                }
+            case 9:
+                if(categoryName == "백반") {
+                    storeView(storeRegiVM, storeData)
+                }
+            case 10:
+                if(categoryName == "도시락") {
+                    storeView(storeRegiVM, storeData)
+                }
+            case 11:
+                if(categoryName == "분식") {
+                    storeView(storeRegiVM, storeData)
+                }
+            case 12:
+                if(categoryName == "패스트푸드") {
+                    storeView(storeRegiVM, storeData)
+                }
+            case 13:
+                if(categoryName == "아시안") {
+                    storeView(storeRegiVM, storeData)
+                }
+            default:
+                Text("")
+            }
+        }
+    }
+}
+
 struct CategoryShopView : View {
+    
+    @ObservedObject var storeRegiVM : StoreRegisterViewModel
     @State private var tag:Int? = nil
     var Foods : Category = Category()
-    var CategoryNum : Int
-    var ShopImage = ["Shop0","Shop1","Shop2","Shop3","Shop4","Shop5","Shop6","Shop7","Shop8","Shop9","Shop10","Shop11","Shop12","Shop13"]
-//    ForEach(0..<14) { ix in
-//        NavigationLink(destination: SelectShopView(tabIndex: ix) , tag: ix, selection: self.$tag , label: {
-//            Button(action: {self.tag = ix} , label: {
-//                VStack{
-//                    Image("category/\(image[ix])")
-//                        .resizable().frame(width: 50, height: 50)
-//                    Text("\(Foods.foodName[ix])").foregroundColor(Color.black)
-//                }
-//            }).buttonStyle(HomeButtonStyle(width: 80,height: 80 ,fontsize: 15))
-//
-//        })
+    var topTapNum : Int
     var body: some View {
-        VStack(spacing: 0){
-        ForEach(0..<10) {
-            i in NavigationLink(destination: ShopView() , tag: i, selection: self.$tag , label: {
-                Button(action: {self.tag = i } , label: {
-                HStack(spacing: 0){
-                        Image("Shop/\(ShopImage[CategoryNum])").resizable().frame(width: 100, height: 120 ,alignment: .leading)
-                        
-                        Spacer()
-                        VStack(spacing: 0){
-                            //Text("")
-                            //Shop Tilte
-                            Text("\(Foods.foodName[CategoryNum])").font(.system(size: 20 , weight: .bold))
-                        }
-                        Spacer()
-                    }
-
-            }).frame(width: .infinity, height: .infinity, alignment: .topLeading)
-            })
+        var stores = storeRegiVM.stores
+        VStack {
+            ForEach(stores , id : \.self) { store in
+                NavigationLink( destination: ShopView(store)  , tag: store.hashValue , selection: self.$tag , label: {
+                    storeListView(storeRegiVM ,store , store.storeCategory , topTapNum)
+                })
+                
+            }
         }
-      }
     }
-
-      }
-
-
+}
 
 
 //struct SelectShopView_Previews: PreviewProvider {

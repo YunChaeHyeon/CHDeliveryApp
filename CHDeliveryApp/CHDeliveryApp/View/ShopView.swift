@@ -8,14 +8,30 @@
 import SwiftUI
 
 struct ShopView: View {
+    var storeData : Store
+    @ObservedObject var storeRegiVM : StoreRegisterViewModel = StoreRegisterViewModel()
+    @ObservedObject var cartVM = CartViewModel()
     @Environment(\.dismiss) private var dismiss
     @State private var tag:Int? = nil
+    
+    init(_ storeData : Store){
+        self.storeData = storeData
+    }
     var body: some View {
         
         ScrollView {
             VStack{
+                if(storeData.storeMainImage != nil){
+                    storeRegiVM.getStoreImage(store: storeData)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .ignoresSafeArea(edges: .top)
+                        .frame(height: 200)
+                        .clipped()
+                        .padding(.bottom , 20)
+                }
                 //Title
-                Text("가게 이름")
+                Text("\(storeData.storeName)")
                     .font(.system(size: 25 , weight: .bold))
                     .padding(.bottom, 5)
                 //별점
@@ -68,16 +84,14 @@ struct ShopView: View {
                 
                 //2 탭바 : 배달주문 / 포장/방문 주문
                 //배달주문 최소주문금액 , 결제 방법 , 배달 시간 , 배달팁
-                //TestVMView(storeRegiVM: StoreRegisterViewModel())
-                deliveryOrpackagingTopTabBar(storeRegiVM: StoreRegisterViewModel() , tabIndex: 0, isText: true)
+                deliveryOrpackagingTopTabBar(storeData : storeData ,storeRegiVM: StoreRegisterViewModel() , tabIndex: 0, isStoreView: true)
                 //최소주문금액 /이용방법 /픽업 시간/ 위치 안내 (지도) / 결제방법
             } //VStack
-            .padding(10)
             .background(Color.white)
             
             VStack{
                 //3 탭바 : 메뉴 / 정보 / 리뷰
-                MenuOrInformaOrReview(storeRegiVM: StoreRegisterViewModel() ,tabIndex: 0 , isStoreRegister: false)
+                MenuOrInformaOrReview(storeData : storeData ,storeRegiVM: StoreRegisterViewModel() ,tabIndex: 0 , isStoreRegister: false)
             }.background(Color.white)
         }
             //.background(Color(hex: 0xEFEFEF))//ScrollView
@@ -128,14 +142,9 @@ struct ShopView: View {
 }
 
 
-struct TestVMView : View {
-    @ObservedObject var storeRegiVM : StoreRegisterViewModel
-    var body: some View {
-        Text("Hi")
-    }
-}
-
 struct MenuOrInformaOrReview : View {
+    var storeData : Store
+    @ObservedObject var cartVM = CartViewModel()
     @ObservedObject var storeRegiVM : StoreRegisterViewModel
     @State var tabIndex: Int
     var isStoreRegister : Bool
@@ -143,6 +152,7 @@ struct MenuOrInformaOrReview : View {
     @State private var tag:Int? = nil
     
     var body: some View {
+        
         HStack(spacing: 20) {
             Spacer()
             TabBarButton(text: "메뉴", isSelected: .constant(tabIndex == 0)).onTapGesture {
@@ -168,20 +178,30 @@ struct MenuOrInformaOrReview : View {
                 if(tabIndex == 0){
                     VStack{
                         Text("대표 메뉴")
-                        ForEach(0..<14) {
-                            i in NavigationLink(destination: SelectMenuView() , tag: i, selection: self.$tag , label: {
-                                Button(action: {self.tag = i } , label: {
+                        ForEach( Array(storeData.menus.enumerated()) , id : \.offset) {
+                            index, menu in NavigationLink(destination: SelectMenuView( cartVM : cartVM , MenuItem : menu) , tag: index , selection: self.$tag , label: {
+                                Button(action: {
+                                    self.tag = index
+                                } , label: {
                                 HStack{
-                                    VStack{
-                                        Text("New 메뉴이름").font(.system(size: 20 , weight: .bold))
-                                            .foregroundColor(Color.black)
-                                        Text("음식 설명").foregroundColor(Color.gray)
-                                    }
-                                    Image("food/food1")
+                                    VStack(alignment: .leading){
+                                        Text("\(menu.menuName)").font(.system(size: 20 , weight: .bold))
+                                           
+                                        Text("\(menu.menuDefaultPrice)원")
+                                            .font(.system(size: 16 , weight: .bold))
+                                    }.padding(.leading , 30)
+                                     .foregroundColor(Color.black)
+                                    Spacer()
+                                    storeRegiVM.getMenuImage(store: storeData, index: index)
+                                        .resizable()
+                                        .cornerRadius(20)
+                                        .frame(width: 120, height: 120)
+                                        .padding(.trailing , 30)
                                 }
                                     
                             })
                             })
+                            Divider().background(Color.gray)
                         }
                     }
                 }else if(tabIndex == 1){
@@ -284,9 +304,10 @@ struct AddMenuView : View {
 }
     
 struct TextOrTextField : View {
+    var storeData : Store
     @ObservedObject var storeRegiVM : StoreRegisterViewModel
     
-    @State var isText : Bool
+    @State var isStoreView : Bool
     @State var textTilte : String
     var saveTextNumber : Int
     
@@ -294,87 +315,108 @@ struct TextOrTextField : View {
     var categorys : [String] = ["족발 보쌈" , "찜 탕 찌개" , "일식", "피자","고기","야식","양식","치킨","중식","백반","도시락","분식","패스트푸드","아시안"]
     
     var body: some View {
-        if(isText){
-            Text("불러오기")
-        }else{
+
             switch(saveTextNumber) {
             case 1:
-                TextField(textTilte , value: $storeRegiVM.minDelivery , format: .number)
-                    .frame(width: 80)
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .fixedSize(horizontal: true, vertical: false)
-                    .multilineTextAlignment(.center)
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, 16)
-                    .background(borderStyleView())
+                if(isStoreView){
+                    Text("\(storeData.minDelivery)")
+                }else{
+                    TextField(textTilte , value: $storeRegiVM.minDelivery , format: .number)
+                        .frame(width: 80)
+                        .textFieldStyle(PlainTextFieldStyle())
+                        .fixedSize(horizontal: true, vertical: false)
+                        .multilineTextAlignment(.center)
+                        .padding(.vertical, 5)
+                        .padding(.horizontal, 16)
+                        .background(borderStyleView())
+                }
+
             case 2:
-                HStack{
-                    Picker("카테고리" , selection: $storeRegiVM.storeCategory){
-                        ForEach(categorys , id: \.self){ category in
-                            Text(category).foregroundColor(Color.green)
+                if(isStoreView){
+                    Text("\(storeData.storeCategory)")
+                }else{
+                    HStack{
+                        Picker("카테고리" , selection: $storeRegiVM.storeCategory){
+                            ForEach(categorys , id: \.self){ category in
+                                Text(category).foregroundColor(Color.green)
+                                
+                            }
+                        }.padding(.leading , 10)
+                            .accentColor(.green)
+                        Image(systemName: "chevron.right").foregroundColor(Color.green)
+                            .padding(.trailing ,5)
                             
-                        }
-                    }.padding(.leading , 10)
-                        .accentColor(.green)
-                    Image(systemName: "chevron.right").foregroundColor(Color.green)
-                        .padding(.trailing ,5)
-                        
+                    }
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(.green, lineWidth: 2)
+                    )
                 }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(.green, lineWidth: 2)
-                )
+
             case 3:
-                HStack{
-                    Picker("결제 방법" , selection: $storeRegiVM.payMethod){
-                        ForEach(options , id: \.self){ option in
-                            Text(option).foregroundColor(Color.mint)
+                if(isStoreView){
+                    Text("\(storeData.payMethod)")
+                }else{
+                    HStack{
+                        Picker("결제 방법" , selection: $storeRegiVM.payMethod){
+                            ForEach(options , id: \.self){ option in
+                                Text(option).foregroundColor(Color.mint)
+                                
+                            }
+                        }.padding(.leading , 10)
+                            .accentColor(.mint)
+                        Image(systemName: "chevron.right").foregroundColor(Color.mint)
+                            .padding(.trailing ,5)
                             
-                        }
-                    }.padding(.leading , 10)
-                        .accentColor(.mint)
-                    Image(systemName: "chevron.right").foregroundColor(Color.mint)
-                        .padding(.trailing ,5)
-                        
+                    }
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(.mint, lineWidth: 2)
+                    )
                 }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(.mint, lineWidth: 2)
-                )
+
 
             case 4:
-                TextField(textTilte , value : $storeRegiVM.minTime , format: .number)
-                    .frame(width: 80)
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .fixedSize(horizontal: true, vertical: false)
-                    .multilineTextAlignment(.center)
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, 16)
-                    .background(borderStyleView())
+                if(isStoreView){
+                    Text("\(storeData.minTime)")
+                }else{
+                    TextField(textTilte , value : $storeRegiVM.minTime , format: .number)
+                        .frame(width: 80)
+                        .textFieldStyle(PlainTextFieldStyle())
+                        .fixedSize(horizontal: true, vertical: false)
+                        .multilineTextAlignment(.center)
+                        .padding(.vertical, 5)
+                        .padding(.horizontal, 16)
+                        .background(borderStyleView())
+                }
+
             case 5:
-                TextField(textTilte , value: $storeRegiVM.tip , format: .number )
-                    .frame(width: 80)
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .fixedSize(horizontal: true, vertical: false)
-                    .multilineTextAlignment(.center)
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, 16)
-                    .background(borderStyleView())
+                if(isStoreView){
+                    Text("\(storeData.tip)")
+                }else{
+                    TextField(textTilte , value: $storeRegiVM.tip , format: .number )
+                        .frame(width: 80)
+                        .textFieldStyle(PlainTextFieldStyle())
+                        .fixedSize(horizontal: true, vertical: false)
+                        .multilineTextAlignment(.center)
+                        .padding(.vertical, 5)
+                        .padding(.horizontal, 16)
+                        .background(borderStyleView())
+                }
+
                 
             default:
                 Text("No Number")
             }
 
-        }
-        
-
     }
 }
 
 struct deliveryOrpackagingTopTabBar: View {
+    var storeData : Store
     @ObservedObject var storeRegiVM : StoreRegisterViewModel
     @State var tabIndex: Int
-    @State var isText : Bool
+    @State var isStoreView : Bool
     
     var body: some View {
             HStack(spacing: 20) {
@@ -394,27 +436,27 @@ struct deliveryOrpackagingTopTabBar: View {
             VStack(alignment: .leading, spacing: 15){
                 HStack{
                     Text("카테고리").padding(.trailing, 59)
-                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "", saveTextNumber: 2)
+                    TextOrTextField(storeData : storeData ,storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "", saveTextNumber: 2)
                 }
                 HStack{
                     Text("결제 방법").padding(.trailing, 55)
-                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "", saveTextNumber: 3)
+                    TextOrTextField(storeData : storeData , storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "", saveTextNumber: 3)
                 }
                 HStack{
                     Text("최소 주문 금액").padding(.trailing, 20)
-                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "금액 입력", saveTextNumber: 1)
+                    TextOrTextField(storeData : storeData , storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "금액 입력", saveTextNumber: 1)
                     Text("원")
                     Spacer()
                 }
                 HStack{
                     Text("배달 시간").padding(.trailing, 55)
-                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "시간 입력", saveTextNumber: 4)
+                    TextOrTextField(storeData : storeData , storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "시간 입력", saveTextNumber: 4)
                     Text("분 소요 예상")
                 }
 
                 HStack{
                     Text("배달팁").padding(.trailing, 75)
-                    TextOrTextField(storeRegiVM: storeRegiVM, isText: isText, textTilte: "금액 입력", saveTextNumber: 5)
+                    TextOrTextField(storeData : storeData , storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "금액 입력", saveTextNumber: 5)
                     Text("원")
                 }
                 
@@ -454,6 +496,6 @@ struct deliveryOrpackagingTopTabBar: View {
 
 struct ShopView_Previews: PreviewProvider {
     static var previews: some View {
-        ShopView()
+        ShopView(Store())
     }
 }

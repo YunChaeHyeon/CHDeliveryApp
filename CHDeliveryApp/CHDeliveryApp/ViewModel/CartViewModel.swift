@@ -8,28 +8,47 @@
 import SwiftUI
 
 class CartViewModel : ObservableObject {
-    //var ShopMenuCart = Cart(Price: 1000, Count: 1, Total: 0)
+    @Published var carts: [Cart] = Array(Cart.findAll())
     
-    @Published private var shopMenuCart: Cart = Cart()
+    @Published var storeName : String = ""
+    @Published var deliveryTime : Int = 0
+    @Published var menuName : String = ""
+    @Published var menuImage : NSData? = nil
+    @Published var price : Int = 0
+    @Published var count : Int = 1
+    @Published var total : Int = 0
     
-    var Count: Int {
-        shopMenuCart.Count
+    func addCart() {
+        let cart = Cart()
+        cart.storeName = storeName
+        cart.deliveryTime = deliveryTime
+        cart.menuName = menuName
+        cart.menuImage = menuImage
+        cart.price = price
+        cart.count = count
+        cart.total = total
+        
+        self.carts.append(cart)
     }
     
-    var Price: Int {
-        shopMenuCart.Price
+    func delCart(old : Cart) {
+        Cart.delCart(old)
     }
     
-    var Total: Int {
-        shopMenuCart.Total
+    func editCart(old : Cart) -> Void {
+        Cart.editCart(cart: old, _price: price, _count: count, _total: total)
     }
+    
     
     func UpCount(){
-        shopMenuCart.UpCount()
+        count = count + 1
+        total = price*count
     }
-    
+
     func DownCount(){
-        shopMenuCart.DownCount()
+        if(count < 2) {return}
+        count = count - 1
+        total = price*count
     }
     
 }

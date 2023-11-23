@@ -50,25 +50,25 @@ class UserViewModel: ObservableObject {
         return useruiImage!
     }
 
-    func add(name: String) -> Void {
+    func addUser(name: String) -> Void {
         guard !name.isEmpty else { return }
         let user = User()
         user.name = name
         self.users.append(user)
-        User.addMemo(user)
+        User.addUser(user)
     }
     
-    func delete(old: User) -> Void {
-        User.delMemo(old)
+    func delUser(old: User) -> Void {
+        User.delUser(old)
     }
 
-    func refreshMemo() -> Void {
+    func refreshUser() -> Void {
         self.users = Array(User.findAll())
     }
 
-    func editMemo(old: User, name: String , userImage: NSData) -> Void {
+    func editUser(old: User, name: String , userImage: NSData) -> Void {
         guard !name.isEmpty else { return }
-        User.editMemo(user: old, name: name , userImage: userImage)
+        User.editUser(user: old, name: name , userImage: userImage)
     }
     
 }

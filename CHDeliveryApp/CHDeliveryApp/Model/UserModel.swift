@@ -35,21 +35,21 @@ extension User {
     }
     
     // realm객체에 값을 추가
-    static func addMemo(_ user : User) {
+    static func addUser(_ user : User) {
         try! realm.write {
             realm.add(user)
         }
     }
 
     // realm객체의 값을 삭제
-    static func delMemo(_ user: User) {
+    static func delUser(_ user: User) {
         try! realm.write {
             realm.delete(user)
         }
     }
 
     // realm객체의 값을 업데이트
-    static func editMemo(user: User, name: String , userImage: NSData) {
+    static func editUser(user: User, name: String , userImage: NSData) {
         try! realm.write {
             user.image = userImage
             user.name = name

@@ -15,7 +15,7 @@ class StoreRegisterViewModel: ObservableObject {
     @objc dynamic var storeImage: NSData? = nil
     
     @Published var storeName : String = ""
-    @Published var storeCategory : String = "한식"
+    @Published var storeCategory : String = "족발 보쌈"
     @Published var minDelivery : Int = 0
     @Published var payMethod : String = "바로결제"
     @Published var minTime : Int = 0
@@ -49,6 +49,25 @@ class StoreRegisterViewModel: ObservableObject {
         return image
     }
     
+    func getMenuImage(store : Store , index : Int) -> Image {
+        var image = Image("")
+        if(store.menus[index].menuImage != nil){
+            let menuImage = UIImage(data: store.menus[index].menuImage! as Data)
+            image = Image(uiImage: menuImage!)
+        }
+        return image
+    }
+    
+    
+    func getStoreImage(store: Store) -> Image{
+        var image = Image("")
+        if(store.storeMainImage != nil) {
+            let storeImage = UIImage(data: store.storeMainImage! as Data)
+            image = Image(uiImage: storeImage!)
+        }
+        return image
+    }
+    
     //메뉴 등록
     func addMenu() {
         let menu = Menu()
@@ -63,7 +82,7 @@ class StoreRegisterViewModel: ObservableObject {
     }
     
     //store 등록
-    func add()
+    func addStore()
     {
         //guard !storeName.isEmpty else { return }
         //guard !payMethod.isEmpty else { return }
@@ -86,11 +105,11 @@ class StoreRegisterViewModel: ObservableObject {
         self.stores = Array(Store.findAll())
     }
     
-    func del(old : Store){
+    func delStore(old : Store){
         Store.delStore(old)
     }
     
-    func editMemo(old: Store) -> Void {
+    func editStore(old: Store) -> Void {
         guard !storeName.isEmpty else { return }
         guard !payMethod.isEmpty else { return }
         

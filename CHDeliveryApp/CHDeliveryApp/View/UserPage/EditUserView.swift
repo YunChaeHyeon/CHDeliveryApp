@@ -89,7 +89,7 @@ struct EditUserView : View {
                 }else{
                     if(user == nil){
                         print("user == nil")
-                        userVM.add(name: name)
+                        userVM.addUser(name: name)
                     }else{
                         self.showingAlert = false
                         print("user != nil")
@@ -99,7 +99,7 @@ struct EditUserView : View {
                         }
                         let imageData = selectedUIImage!.jpegData(compressionQuality: 0.5)! as NSData
 
-                        userVM.editMemo(old: user! , name: name , userImage: imageData)
+                        userVM.editUser(old: user! , name: name , userImage: imageData)
                     
                     }
 
