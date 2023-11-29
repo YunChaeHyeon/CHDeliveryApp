@@ -168,6 +168,9 @@ struct SelectMenuView: View {
 
             //Cart In Button
             CartIn(cartVM : cartVM  , storeData: storeData , MenuItem : MenuItem , total: $total)
+                .onAppear(){
+                    total = MenuItem.menuDefaultPrice
+                }
         } //ZStack
 
 
