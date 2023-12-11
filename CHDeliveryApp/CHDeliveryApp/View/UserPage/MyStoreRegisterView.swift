@@ -92,6 +92,7 @@ struct MyStoreRegisterView : View {
                 }.background(Color.white)
             }
     //            //.background(Color(hex: 0xEFEFEF))//ScrollView
+            .padding(.bottom , 70)
                 .shadow(color: .gray, radius: 2, x: 0, y: 2)
                 .onAppear(perform: {
                         homeState.isHiddenTap()
@@ -156,7 +157,9 @@ struct MyStoreRegiButton : View {
                     .padding(10)
 
         } //HStack
+        .frame(maxWidth: .infinity)
         .background(Color.white)
+
     }
 }
 

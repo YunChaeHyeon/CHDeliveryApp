@@ -193,6 +193,7 @@ struct RegisterMenuView : View {
 
                     
             }.listStyle(PlainListStyle())//List
+                .padding(.bottom , 70)
 
             
             MenuAddButton(storeRegiVM: storeRegiVM)
@@ -228,7 +229,7 @@ struct MenuAddButton : View {
                     .padding(10)
 
         } //HStack
-        .background(Color.white)
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -418,7 +419,6 @@ struct AddMenuOptionsView : View {
             if(Index < storeRegiVM.menuOptions.count){
                 ForEach(storeRegiVM.menuOptions[Index].menuOptionList.indices , id:\.self){ listindex in
                         AddMenuOptionListView(storeRegiVM : storeRegiVM , Index2: Index , listIndex: listindex)
-                        Divider().background(Color.orange)
 
                 }
             }
