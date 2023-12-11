@@ -142,8 +142,8 @@ struct MyStoreRegiButton : View {
         HStack{
 
                 Button(action: {
-                    homeState.isVisibilityTap()
                     storeRegiVM.addStore()
+                    homeState.isVisibilityTap()
                     dismiss()
                 }, label: {
                     HStack{

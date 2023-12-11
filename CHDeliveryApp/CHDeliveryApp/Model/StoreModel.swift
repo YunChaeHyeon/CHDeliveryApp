@@ -66,6 +66,7 @@ class Store : Object {
     @objc dynamic var payMethod : String = "Null"
     @objc dynamic var minTime: Int = 0
     @objc dynamic var tip: Int = 0
+    @objc dynamic var like : Bool = false
     
     var menus = List<Menu>()
     
@@ -101,6 +102,12 @@ extension Store {
             store.payMethod = payMethod
             store.minTime = minTime
             store.tip = tip
+        }
+    }
+    
+    static func editStoreLike(store : Store , like : Bool){
+        try! realm.write{
+            store.like = like
         }
     }
 }

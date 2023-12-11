@@ -66,8 +66,7 @@ struct BottomTapbarView: View {
                     .ignoresSafeArea(.all, edges: .all)
                     .tag("select")
                 
-                Color.purple
-                    .ignoresSafeArea(.all, edges: .all)
+                MyLikeView()
                     .tag("favorite")
                 
                 HomeView(homeState: homeState)

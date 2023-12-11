@@ -6,17 +6,23 @@
 //
 
 import SwiftUI
+import RealmSwift
 
 struct ShopView: View {
     var storeData : Store
     @ObservedObject var storeRegiVM : StoreRegisterViewModel = StoreRegisterViewModel()
     @ObservedObject var cartVM = CartViewModel()
+    @ObservedObject var likeVM = LikeViewModel()
     @Environment(\.dismiss) private var dismiss
     @State private var tag:Int? = nil
+    
+    @State var like : Bool = false
+    @State var scale : CGFloat = 1
     
     init(_ storeData : Store){
         self.storeData = storeData
     }
+    
     var body: some View {
         
         ScrollView {
@@ -60,8 +66,30 @@ struct ShopView: View {
                     
                     Spacer()
                     
-                    Image(systemName: "heart").font(.system(size: 20))
-                    Text("3,405")
+                    
+                    Image(systemName: like ? "heart.fill" : "heart").font(.system(size: 20))
+                        .foregroundColor(like  ? .red : .gray)
+                        .scaleEffect(scale)
+                        .animation(.easeInOut(duration: 0.2))
+                        .onAppear{
+                            like = storeData.like
+                        }
+                        .onTapGesture {
+                            like.toggle()
+                            scale = like  ? 1.2 : 1
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                scale = 1
+                            }
+
+                            storeRegiVM.editStoreLike(old: storeData, like: like)
+                            
+                            if(like){
+                                likeVM.storeName = storeData.storeName
+                                likeVM.addLike(add: storeData)
+                            }else{
+                                likeVM.delLike(old: storeData)
+                            }
+                        }
                     
                     Spacer()
                     

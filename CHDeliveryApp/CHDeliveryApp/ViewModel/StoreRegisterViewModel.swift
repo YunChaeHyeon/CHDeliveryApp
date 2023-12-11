@@ -116,4 +116,8 @@ class StoreRegisterViewModel: ObservableObject {
         Store.editStore(store: old, storeName: storeName, minDelivery: minDelivery, payMethod: payMethod, minTime: minTime, tip: tip)
     }
     
+    func editStoreLike(old : Store , like : Bool ){
+        Store.editStoreLike(store: old, like: like)
+    }
+    
 }

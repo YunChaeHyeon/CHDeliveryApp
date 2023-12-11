@@ -102,7 +102,7 @@ struct EditUserView : View {
                         userVM.editUser(old: user! , name: name , userImage: imageData)
                     
                     }
-
+                    homeState.isVisibilityTap()
                     dismiss()
                 }
                 
