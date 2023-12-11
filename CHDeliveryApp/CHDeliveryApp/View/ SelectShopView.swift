@@ -52,7 +52,7 @@ struct SelectShopView: View {
                             }//ToolbarItem
                     
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        NavigationLink(destination: CartView(homeState:  HomeState() ,CartVM: CartViewModel()) , tag: 1, selection: self.$tag , label: {
+                        NavigationLink(destination: CartView(homeState:  HomeState()) , tag: 1, selection: self.$tag , label: {
                             Button(action: {self.tag = 1} ) {
                                 Image(systemName: "cart")
                                     .foregroundColor(Color.black)

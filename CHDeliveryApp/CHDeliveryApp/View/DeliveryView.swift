@@ -70,7 +70,7 @@ struct DeliveryView: View {
                         }//ToolbarItem
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink(destination: CartView(homeState: homeState,CartVM: CartViewModel()) , tag: 1, selection: self.$tag , label: {
+                    NavigationLink(destination: CartView(homeState: homeState) , tag: 1, selection: self.$tag , label: {
                         Button(action: {self.tag = 1} ) {
                             Image(systemName: "cart")
                                 .foregroundColor(Color.black)

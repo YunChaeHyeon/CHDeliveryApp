@@ -73,17 +73,13 @@ struct TopView: View {
                             Image(systemName: "bell")
                                 .foregroundColor(Color.white)
                         }
-                        NavigationLink(destination: CartView(homeState: homeState,CartVM: CartViewModel()) , tag: 1, selection: self.$tag , label: {
+                        NavigationLink(destination: CartView(homeState: homeState) , tag: 1, selection: self.$tag , label: {
                             Button(action: {self.tag = 1} ) {
                                 Image(systemName: "cart")
                                     .foregroundColor(Color.white)
                             }
                         })
                         
-//                        Button(action: {} ) {
-//                            Image(systemName: "cart")
-//                                .foregroundColor(Color.white)
-//                        }
                     }
                 }
                 // 2
@@ -143,7 +139,9 @@ struct MiddleView: View {
                     
                     Spacer(minLength: 100)
                 
-            }.background(
+            }
+            .padding(.bottom , 70)
+            .background(
                 VStack(spacing: .zero) {
                         Color.mint
                         .frame(height : 120)

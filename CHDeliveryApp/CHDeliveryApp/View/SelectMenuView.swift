@@ -178,11 +178,33 @@ struct SelectMenuView: View {
 }
 
 struct CartIn : View {
+    @Environment(\.dismiss) private var dismiss
     @ObservedObject var cartVM : CartViewModel
     var storeData : Store
     var MenuItem : Menu
     @Binding var total : Int
 
+    func StoreInCart() -> Bool {
+        var check : Bool = false
+
+        for cart in cartVM.carts {
+            if(storeData.storeName == cart.storeName){
+                check = true
+            }
+        }
+        return check
+    }
+    
+    func getOldCart() -> Cart{
+        var _cart = Cart()
+        for cart in cartVM.carts {
+            if(storeData.storeName == cart.storeName){
+                _cart = cart
+            }
+        }
+        return _cart
+    }
+    
     var body: some View {
         
         //Cart In Button
@@ -194,13 +216,19 @@ struct CartIn : View {
             Spacer()
                 Button(action: {
                     cartVM.storeName = storeData.storeName
-                    cartVM.deliveryTime = storeData.minDelivery
+                    cartVM.deliveryTime = storeData.minTime
                     cartVM.menuName = MenuItem.menuName
                     cartVM.menuImage = MenuItem.menuImage
+                    cartVM.DefaultPrice = MenuItem.menuDefaultPrice
                     cartVM.price = total
                     
-                    cartVM.addCart()
-                    print("CartIn")
+                    if(StoreInCart()){
+                        cartVM.addCartMenu(old: getOldCart(), addCartMenu: cartVM.reAddCartMenu())
+                    }else{
+                        cartVM.addCartMenu()
+                        cartVM.addCart()
+                    }
+                    dismiss()
                 }, label: {
                     HStack{
                         Text("\(total)")

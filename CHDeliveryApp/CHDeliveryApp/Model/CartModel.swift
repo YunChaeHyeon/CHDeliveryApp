@@ -8,15 +8,21 @@
 import Foundation
 import RealmSwift
 
-class Cart : Object {
-    @objc dynamic var storeName : String = ""
-    @objc dynamic var deliveryTime : Int = 0
+class CartMenu : Object {
+    
     @objc dynamic var menuName : String = ""
     @objc dynamic var menuImage : NSData? = nil
+    @objc dynamic var DefaultPrice : Int = 0
     @objc dynamic var price : Int = 0
     @objc dynamic var count : Int = 1
     @objc dynamic var total : Int = 0
+}
+
+class Cart : Object {
+    @objc dynamic var storeName : String = ""
+    @objc dynamic var deliveryTime : Int = 0
     
+    var cartMenus = List<CartMenu>()
 }
 
 extension Cart {
@@ -40,16 +46,19 @@ extension Cart {
             realm.delete(cart)
         }
     }
+
+    static func delCartMenu(_ cartMenu: CartMenu){
+        try! realm.write {
+            realm.delete(cartMenu)
+        }
+    }
     
     // realm객체의 값을 업데이트
-    static func editCart(cart: Cart , _price : Int , _count : Int , _total : Int) {
+    static func editCartMenu(cart: Cart , cartMenu: CartMenu) {
         try! realm.write {
-            cart.price = _price
-            cart.count = _count
-            cart.total = _total
+            cart.cartMenus.append(cartMenu)
 
         }
     }
     
-
 }

@@ -74,12 +74,36 @@ import SwiftUI
 
 struct TestView : View {
     var body: some View {
-        Text("testView")
+        VStack{
+            ForEach(0..<3){ num in
+                Text("\(num)")
+                ForEach(0..<3){ num2 in
+                    ToggleTest()
+                    
+                }
+            }
+        }
     }
 }
+
+struct ToggleTest : View {
+    @State private var someToggle = true
+    var body: some View {
+        VStack {
+             Toggle("확인", isOn: $someToggle)
+             
+             if someToggle {
+                 Text("확인 되었습니다.")
+             } else {
+                 Text("확인 버튼을 눌러주세요.")
+             }
+         }
+         .padding()
+    }
+}
+
 struct ContentView2_Previews: PreviewProvider {
     static var previews: some View {
         TestView()
-           // .environment(\.colorScheme, .dark)
     }
 }

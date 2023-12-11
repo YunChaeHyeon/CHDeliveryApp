@@ -6,28 +6,62 @@
 //
 
 import SwiftUI
+import RealmSwift
 
 class CartViewModel : ObservableObject {
     @Published var carts: [Cart] = Array(Cart.findAll())
+    
     
     @Published var storeName : String = ""
     @Published var deliveryTime : Int = 0
     @Published var menuName : String = ""
     @Published var menuImage : NSData? = nil
+    @Published var DefaultPrice : Int = 0
     @Published var price : Int = 0
     @Published var count : Int = 1
     @Published var total : Int = 0
+    
+    @Published var cartMenus : [CartMenu] = Array<CartMenu>()
+    
+    func addCartMenu(){
+        let cartMenu = CartMenu()
+        cartMenu.menuName = menuName
+        cartMenu.menuImage = menuImage
+        cartMenu.DefaultPrice = DefaultPrice
+        cartMenu.price = price
+        cartMenu.count = count
+        cartMenu.total = total
+        
+        self.cartMenus.append(cartMenu)
+        
+    }
+
+    
+    func reAddCartMenu() -> CartMenu {
+        var cartMenu = CartMenu()
+        cartMenu.menuName = menuName
+        cartMenu.menuImage = menuImage
+        cartMenu.DefaultPrice = DefaultPrice
+        cartMenu.price = price
+        cartMenu.count = count
+        cartMenu.total = total
+        return cartMenu
+    }
+    
+    func addCartMenu(old : Cart , addCartMenu: CartMenu) -> Void {
+
+        Cart.editCartMenu(cart: old, cartMenu: addCartMenu)
+    }
+    
+    func delCartMenu(obj : CartMenu){
+        Cart.delCartMenu(obj)
+    }
     
     func addCart() {
         let cart = Cart()
         cart.storeName = storeName
         cart.deliveryTime = deliveryTime
-        cart.menuName = menuName
-        cart.menuImage = menuImage
-        cart.price = price
-        cart.count = count
-        cart.total = price * count
-        
+        cart.cartMenus.append(objectsIn: cartMenus)
         self.carts.append(cart)
         Cart.addCart(cart)
     }
@@ -36,14 +70,26 @@ class CartViewModel : ObservableObject {
         Cart.delCart(old)
     }
     
-    func editCart(old : Cart) -> Void {
-        Cart.editCart(cart: old, _price: price, _count: count, _total: total)
+    func delViewModelCartMenu(cartIndex : Int ,removeMenuIndex: Int){
+        print("cartMenus count : \(carts[cartIndex].cartMenus.count)")
+        print("cart count : \(carts.count)")
+        let realm = try! Realm()
+        try! realm.write {
+        carts[cartIndex].cartMenus.remove(at: removeMenuIndex)
+        }
     }
     
+    func delViewModelCart(removeIndex : Int){
+        print("cart count : \(carts.count)")
+        print("cartMenus count : \(cartMenus.count)")
+        carts.remove(at: removeIndex)
+    }
     
     func UpCount(){
         count = count + 1
         total = price*count
+        print("count : \(count) price : \(price)")
+        print("total : \(total)")
     }
 
     func DownCount(){
