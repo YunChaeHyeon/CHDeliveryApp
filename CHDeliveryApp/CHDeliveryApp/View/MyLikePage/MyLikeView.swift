@@ -8,24 +8,53 @@
 import SwiftUI
 
 struct MyLikeView : View {
+    @ObservedObject var homeState : HomeState
     @ObservedObject var likeVM = LikeViewModel()
+    @State private var tag:Int? = nil
     
     var body: some View {
         var likes = likeVM.likeStores
-        ScrollView{
-            
-            ForEach(likes , id : \.self ) { like in
-                ForEach(like.stores , id: \.self){ store in
-                    
-                    LikeListView(storeData: store)
+        NavigationView {
+            ScrollView{
+                
+                ForEach( likes , id : \.self ) {like in
+                    ForEach(like.stores , id: \.self){ store in
+                        NavigationLink( destination : ShopView(store , homeState) , tag: like.hashValue , selection: self.$tag , label: {
+                            LikeListView(storeData: store)
+                        })
+                        
+                    }
                 }
-                
-                
-                //Divider().background(Color.red)
             }
-        }
-        .background(Color(hex: 0xEFEFEF))
-        .padding(.bottom , 50)
+            .listStyle(PlainListStyle())
+            .background(Color(hex: 0xEFEFEF))
+            .padding(.bottom , 50)
+            .padding(.top , 30)
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(leading:
+                    HStack{
+                        Image(systemName: "heart.fill").foregroundColor(Color.red)
+                        Text("찜 리스트")
+                    }.padding(.top , 20)
+                                    .font(.system(size: 20 , weight: .bold ))
+            )
+              .navigationBarItems(trailing:
+                                        HStack{
+                                            Button(action: {
+                                            }) {
+                                                HStack {
+                                                    NavigationLink(destination: CartView(homeState: homeState) , tag: 1, selection: self.$tag , label: {
+                                                        Button(action: {self.tag = 1} ) {
+                                                            Image(systemName: "cart")
+                                                                .foregroundColor(Color.mint)
+                                                        }
+                                                    })
+                                                }
+                                            }
+                                        }
+                )
+        }.background(Color(hex: 0xEFEFEF))
     }
 }
 
@@ -62,10 +91,3 @@ struct LikeListView : View {
     }
 }
 
-
-struct MyLikeView_Previews: PreviewProvider {
-    static var previews: some View {
-        
-        MyLikeView()
-    }
-}

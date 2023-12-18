@@ -11,7 +11,8 @@ struct SelectShopView: View {
     @State var tabIndex : Int
     @Environment(\.dismiss) private var dismiss
     @State private var tag:Int? = nil
-    @ObservedObject var storeRegiVM = StoreRegisterViewModel()
+    @ObservedObject var storeRegiVM = StoreViewModel()
+    @ObservedObject var homeState : HomeState
     
     var body: some View {
         VStack{
@@ -26,7 +27,7 @@ struct SelectShopView: View {
             }.background(Color.white)
             ScrollView{
                 
-                CategoryShopView(storeRegiVM: storeRegiVM, topTapNum: tabIndex).background(Color.white)
+                CategoryShopView(storeRegiVM: storeRegiVM ,homeState: homeState, topTapNum: tabIndex).background(Color.white)
                 
                 Spacer(minLength: 100)
             }.background(Color(hex: 0xEFEFEF))
@@ -112,10 +113,10 @@ extension View {
 }
 
 struct storeView : View {
-    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    @ObservedObject var storeRegiVM : StoreViewModel
     var storeData : Store
     
-    init(_ storeRegiVM : StoreRegisterViewModel , _ storeData : Store){
+    init(_ storeRegiVM : StoreViewModel , _ storeData : Store){
         self.storeRegiVM = storeRegiVM
         self.storeData = storeData
     }
@@ -149,11 +150,11 @@ struct storeView : View {
 
 struct storeListView: View {
     
-    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    @ObservedObject var storeRegiVM : StoreViewModel
     var storeData : Store
     var categoryName : String
     var topTapNum : Int
-    init(_ storeRegiVM : StoreRegisterViewModel ,_ storeData : Store , _ categoryName : String , _ topTapNum : Int){
+    init(_ storeRegiVM : StoreViewModel ,_ storeData : Store , _ categoryName : String , _ topTapNum : Int){
         self.storeRegiVM = storeRegiVM
         self.storeData = storeData
         self.categoryName = categoryName
@@ -229,7 +230,8 @@ struct storeListView: View {
 
 struct CategoryShopView : View {
     
-    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    @ObservedObject var storeRegiVM : StoreViewModel
+    @ObservedObject var homeState : HomeState
     @State private var tag:Int? = nil
     var Foods : Category = Category()
     var topTapNum : Int
@@ -237,7 +239,7 @@ struct CategoryShopView : View {
         var stores = storeRegiVM.stores
         VStack {
             ForEach(stores , id : \.self) { store in
-                NavigationLink( destination: ShopView(store)  , tag: store.hashValue , selection: self.$tag , label: {
+                NavigationLink( destination: ShopView(store , homeState)  , tag: store.hashValue , selection: self.$tag , label: {
                     storeListView(storeRegiVM ,store , store.storeCategory , topTapNum)
                 })
                 

@@ -9,19 +9,21 @@ import SwiftUI
 
 struct RegisterMenuView : View {
     @Environment(\.dismiss) private var dismiss
+    var imageconversion : ImageConversion = ImageConversion()
     
-    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    @ObservedObject var storeRegiVM : StoreViewModel
+    var storeData : Store
+    var isMenuEdit : Bool
+    var isEdit : Bool
+    var isRegister : Bool
+    var menuIndex : Int
+    
     
     @State var menuImage : Image?
     @State var selectedUIImage : UIImage?
     @State var showImagePicker = false
     
-    @State var TestNum : Int = 0
     @State var deleteButtonClicked = false
-    
-    init(_ storeRegiVM : StoreRegisterViewModel ){
-        self.storeRegiVM = storeRegiVM
-    }
     
     func loadImage() {
         guard let selectedImage = selectedUIImage else { return }
@@ -55,6 +57,15 @@ struct RegisterMenuView : View {
                                     .padding(.bottom , 20)
                             }
                             else{
+                                if(isEdit){
+                                    menuImage?
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .ignoresSafeArea(edges: .top)
+                                        .frame(height: 170)
+                                        .clipped()
+                                        .padding(.bottom , 20)
+                                }else{
                                     VStack{
                                         Text("메뉴 사진 등록").foregroundColor(Color.black)
                                         Image(systemName: "plus.app.fill")
@@ -62,10 +73,19 @@ struct RegisterMenuView : View {
                                             .font(.system(size: 50))
                                     }
                                 .padding(.vertical, 20)
+                                }
+
                             }
 
 
                         })
+                        .onAppear{
+                            //메뉴 이미지 초기화
+                            if(isEdit){
+                                menuImage = imageconversion.getImage(_image: storeData.menus[menuIndex].menuImage!)
+                            }
+                            
+                        }
                             .sheet(isPresented: $showImagePicker, onDismiss: {
                                 loadImage()
                                 //imageChangeWhether = true
@@ -88,9 +108,12 @@ struct RegisterMenuView : View {
                             .background(borderStyleView())
                             .padding(.bottom , 10)
                         Spacer()
-                    }.padding(.horizontal , 20)
+                    }
+
+                    .padding(.horizontal , 20)
                     .listRowInsets(EdgeInsets())
                     .listRowSeparator(.hidden)
+
 
                 //메뉴 기본 가격
                     HStack{
@@ -105,10 +128,79 @@ struct RegisterMenuView : View {
                             .padding(.horizontal, 16)
                             .background(borderStyleView())
                     }.padding(.horizontal , 20)
+                    .onAppear{
+                        if(isEdit){
+                            storeRegiVM.menuDefaultPrice = storeData.menus[menuIndex].menuDefaultPrice
+                        }
+                    }
 
                     
                     //Divider().background(Color.black)
                 //}//VStack
+                    .onDisappear{
+                        storeRegiVM.menuRequireds.removeAll()
+                        storeRegiVM.menuOptions.removeAll()
+                    }
+                    .onAppear{
+                        //isEdit 루트 -> (내 가게 수정) -> 리스트 선택 -> 수정할 가게 정보,메뉴 뜸
+                        if(isEdit){
+                            storeRegiVM.menuName = storeData.menus[menuIndex].menuName
+                            
+                                //Required 초기화(init)
+                                if(storeData.menus[menuIndex].menuRequired.count > 0){
+                                    for count in 1...storeData.menus[menuIndex].menuRequired.count {
+                                        print("Add MenuRequired()")
+                                        storeRegiVM.menuRequireds.append( MenuRequired() )
+                                        storeRegiVM.menuRequireds[count-1].menuRequitedTilte = storeRegiVM.menus[menuIndex].menuRequired[count-1].menuRequitedTilte
+                                        
+                                        //RequiredList 초기화
+                                        if(storeRegiVM.menus[menuIndex].menuRequired[count-1].menuRequiredList.count > 0){
+                                            for listCount in 1...storeRegiVM.menus[menuIndex].menuRequired[count-1].menuRequiredList.count {
+                                                
+                                                //리스트 추가
+                                                storeRegiVM.menuRequireds[count-1].menuRequiredList.append( MenuRequiredList() )
+                                                
+                                                //리스트 제목 초기화
+                                                storeRegiVM.menuRequireds[count-1].menuRequiredList[listCount-1].menuRequiredTitle =
+                                                storeRegiVM.menus[menuIndex].menuRequired[count-1].menuRequiredList[listCount-1].menuRequiredTitle
+                                                
+                                                //리스트 가격 초기화
+                                                storeRegiVM.menuRequireds[count-1].menuRequiredList[listCount-1].menuPrice =
+                                                storeRegiVM.menus[menuIndex].menuRequired[count-1].menuRequiredList[listCount-1].menuPrice
+                                            }
+                                        }
+                                        
+                                    }
+                                }
+                                
+                                //Option 초기화(init)
+                                if(storeData.menus[menuIndex].menuOptions.count > 0){
+                                    for count in 1...storeData.menus[menuIndex].menuOptions.count {
+                                        storeRegiVM.menuOptions.append( MenuOption() )
+                                        storeRegiVM.menuOptions[count-1].menuOptionsTilte = storeRegiVM.menus[menuIndex].menuOptions[count-1].menuOptionsTilte
+                                        
+                                        //OptionList 초기화
+                                        if(storeRegiVM.menus[menuIndex].menuOptions[count-1].menuOptionList.count > 0){
+                                            for listCount in 1...storeRegiVM.menus[menuIndex].menuOptions[count-1].menuOptionList.count {
+                                                
+                                                //리스트 추가
+                                                storeRegiVM.menuOptions[count-1].menuOptionList.append( MenuOptionList() )
+                                                
+                                                //리스트 제목 초기화
+                                                storeRegiVM.menuOptions[count-1].menuOptionList[listCount-1].menuOptionTitle =
+                                                storeRegiVM.menus[menuIndex].menuOptions[count-1].menuOptionList[listCount-1].menuOptionTitle
+                                                
+                                                //리스트 가격 초기화
+                                                storeRegiVM.menuOptions[count-1].menuOptionList[listCount-1].menuPrice =
+                                                storeRegiVM.menus[menuIndex].menuOptions[count-1].menuOptionList[listCount-1].menuPrice
+                                            }
+                                        }
+                                    }
+                                }
+                            
+                            
+                        }
+                    }
                 .navigationBarBackButtonHidden(true)
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarTitle("")
@@ -139,7 +231,7 @@ struct RegisterMenuView : View {
 
                         //****
                         ForEach(storeRegiVM.menuRequireds.indices , id:\.self){ index in
-                                AddMenuRequiredView(storeRegiVM : storeRegiVM , Index: index)
+                            AddMenuRequiredView(storeRegiVM : storeRegiVM , Index: index , isEdit: isMenuEdit , menuIndex: menuIndex)
                             Divider().background(Color.mint)
 
                         }
@@ -149,12 +241,10 @@ struct RegisterMenuView : View {
 
                 //필수 추가
                     Button(action: {
-
                         storeRegiVM.menuRequireds.append( MenuRequired() )
-//                        for (index, value) in storeRegiVM.menuRequirName.enumerated() {
-//                            print((index, value))
-//
-//                        }
+                        if(isEdit){
+                            storeRegiVM.addRequ(old: storeRegiVM.menus[menuIndex])
+                        }
                     }, label: {
                         VStack{
                             Text("필수 사항 등록").foregroundColor(Color.black)
@@ -169,7 +259,7 @@ struct RegisterMenuView : View {
                     Divider().background(Color.black)
                     VStack{
                         ForEach(storeRegiVM.menuOptions.indices , id:\.self){ index in
-                                AddMenuOptionsView(storeRegiVM : storeRegiVM , Index: index)
+                            AddMenuOptionsView(storeRegiVM : storeRegiVM , Index: index , isEdit : isEdit , menuIndex : menuIndex )
                                 Divider().background(Color.mint)
                         }
                     }
@@ -178,6 +268,9 @@ struct RegisterMenuView : View {
                     Button(action: {
 
                         storeRegiVM.menuOptions.append(MenuOption())
+                        if(isEdit){
+                            storeRegiVM.addOption(old: storeRegiVM.menus[menuIndex])
+                        }
                         for (index, value) in storeRegiVM.menuOptions.enumerated() {
                             print((index, value))
                         }
@@ -194,32 +287,66 @@ struct RegisterMenuView : View {
                     
             }.listStyle(PlainListStyle())//List
                 .padding(.bottom , 70)
-
             
-            MenuAddButton(storeRegiVM: storeRegiVM)
+            if(isMenuEdit){
+                if(!isEdit){
+                    MenuAddButton(storeRegiVM: storeRegiVM , menu: Menu(), isMenuEdit:
+                                    isMenuEdit)
+                }else{
+                    MenuAddButton(storeRegiVM: storeRegiVM , menu: storeRegiVM.menus[menuIndex], isMenuEdit:
+                                    isMenuEdit)
+                }
+                 
+            }else{
+                MenuAddButton(storeRegiVM: storeRegiVM , menu: Menu(), isMenuEdit: isMenuEdit)
+            }
+            
         }//ZStack
         .onAppear(){
-            storeRegiVM.menuImage = nil
-            storeRegiVM.menuName = ""
-            storeRegiVM.menuDefaultPrice = 0
+            if(isMenuEdit){
+                if(isEdit){
+                    storeRegiVM.menuImage = storeData.menus[menuIndex].menuImage
+                }else{
+                    
+                }
+                
+            }else{
+                storeRegiVM.menuImage = nil
+                storeRegiVM.menuName = ""
+                storeRegiVM.menuDefaultPrice = 0
+            }
+            
+
         }
     }
 }
 
 struct MenuAddButton : View {
-    @ObservedObject var storeRegiVM: StoreRegisterViewModel
+    @ObservedObject var storeRegiVM: StoreViewModel
     @Environment(\.dismiss) private var dismiss
+    var menu : Menu
+    var isMenuEdit : Bool
     
     var body: some View {
 
         HStack{
 
                 Button(action: {
-                    storeRegiVM.addMenu()
+                    if(isMenuEdit){
+                        storeRegiVM.editMenu(old: menu)
+                    }else{
+                        storeRegiVM.addMenu()
+                    }
+                    
                     dismiss()
                 }, label: {
                     HStack{
-                        Text("메뉴 등록하기")
+                        if(isMenuEdit){
+                            Text("메뉴 수정하기")
+                        }else{
+                            Text("메뉴 등록하기")
+                        }
+                        
                     }
                     .font(.system(size:20 , weight: .bold))
                     .foregroundColor(Color.white)
@@ -234,11 +361,11 @@ struct MenuAddButton : View {
 }
 
 struct AddMenuRequiredView : View {
-    @ObservedObject var storeRegiVM: StoreRegisterViewModel
+    @ObservedObject var storeRegiVM: StoreViewModel
     var Index : Int
+    var isEdit : Bool
+    var menuIndex : Int
     @FocusState var focused: Bool
-    @State var TestNum : Int = 0
-    var listIndexTest : Int = 0
     
     var body: some View {
         
@@ -247,7 +374,12 @@ struct AddMenuRequiredView : View {
                 Spacer()
                 
                 Button(action: {
-                    storeRegiVM.menuRequireds.remove(at: Index)
+
+                        storeRegiVM.menuRequireds.remove(at: Index)
+                    if(isEdit){
+                        storeRegiVM.delRequ(old : storeRegiVM.menus[menuIndex] , Index : Index)
+                    }
+                    
                 }, label: {Image(systemName: "trash.fill")
                         .foregroundColor(Color.red)
                         .font(.system(size: 20))
@@ -257,19 +389,22 @@ struct AddMenuRequiredView : View {
             
             HStack{
                 
-                TextField("필수 메뉴 제목", text: Binding(get:  {  self.Index < self.storeRegiVM.menuRequireds.count ? self.storeRegiVM.menuRequireds[Index].menuRequitedTilte : "" } ,set : {
-                    storeRegiVM.objectWillChange.send()
-                    storeRegiVM.menuRequireds[Index].menuRequitedTilte = $0}))
-                        .frame(width: 100)
-                        .textFieldStyle(PlainTextFieldStyle())
-                        .fixedSize(horizontal: true, vertical: false)
-                        .multilineTextAlignment(.center)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 16)
-                        .background(borderStyleView())
-                        .padding(.bottom , 10)
-                        .focused($focused)
-    
+                TextField("필수 메뉴 제목", text: Binding(get:  {  self.Index < self.storeRegiVM.menuRequireds.count ? self.storeRegiVM.menuRequireds[Index].menuRequitedTilte : "" } 
+                                                      ,set : {
+                                                storeRegiVM.objectWillChange.send()
+                                                storeRegiVM.menuRequireds[Index].menuRequitedTilte = $0
+                                                }))
+                    .frame(width: 100)
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .fixedSize(horizontal: true, vertical: false)
+                    .multilineTextAlignment(.center)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 16)
+                    .background(borderStyleView())
+                    .padding(.bottom , 10)
+                    .focused($focused)
+
+                
                     Spacer()
                     
             }.padding(.horizontal,10) //HStack
@@ -280,7 +415,7 @@ struct AddMenuRequiredView : View {
                     VStack{
                         ForEach(storeRegiVM.menuRequireds[self.Index].menuRequiredList.indices , id:\.self){ listindex in
 
-                            AddMenuRequiredListView(storeRegiVM : storeRegiVM , Index2: self.Index , listIndex: listindex)
+                            AddMenuRequiredListView(storeRegiVM : storeRegiVM , Index2: self.Index , listIndex: listindex , isEdit: isEdit , menuIndex: menuIndex)
                         }
                     }
 
@@ -291,6 +426,10 @@ struct AddMenuRequiredView : View {
             Button(action: {
                 storeRegiVM.objectWillChange.send()
                 storeRegiVM.menuRequireds[self.Index].menuRequiredList.append(MenuRequiredList())
+                
+                if(isEdit){
+                    storeRegiVM.addRequList(old: storeRegiVM.menus[menuIndex], Index: Index)
+                }
 
             }, label: {
                 VStack{
@@ -307,17 +446,13 @@ struct AddMenuRequiredView : View {
 
 
 struct AddMenuRequiredListView : View {
-    @ObservedObject var storeRegiVM: StoreRegisterViewModel
+    @ObservedObject var storeRegiVM: StoreViewModel
     var Index2 : Int
     var listIndex : Int
+    var isEdit : Bool
+    var menuIndex : Int
     @State var title : String = ""
     @State var price : String = ""
-
-    init(storeRegiVM: StoreRegisterViewModel, Index2 : Int, listIndex: Int){
-        self.storeRegiVM = storeRegiVM
-        self.Index2 = Index2
-        self.listIndex = listIndex
-    }
     
     var body: some View {
         //추후 onCommit -> onEditingChanged 로 변경 포커스 받으면 false 안받으면 true 커밋
@@ -362,6 +497,9 @@ struct AddMenuRequiredListView : View {
             Button(action: {
                 storeRegiVM.objectWillChange.send()
                 storeRegiVM.menuRequireds[Index2].menuRequiredList.remove(at: listIndex)
+                if(isEdit){
+                    storeRegiVM.delRequList(old: storeRegiVM.menus[menuIndex], Index: Index2, ListIndex: listIndex)
+                }
             }, label: {
                 VStack{
                     
@@ -378,10 +516,13 @@ struct AddMenuRequiredListView : View {
 }
 
 struct AddMenuOptionsView : View {
-    @ObservedObject var storeRegiVM: StoreRegisterViewModel
-    @FocusState var focused: Bool
+    @ObservedObject var storeRegiVM: StoreViewModel
     var Index : Int
+    var isEdit : Bool
+    var menuIndex : Int
+    
     @State var title : String = ""
+    @FocusState var focused: Bool
     
     var body: some View {
         VStack {
@@ -389,6 +530,9 @@ struct AddMenuOptionsView : View {
                 Spacer()
                 Button(action: {
                     storeRegiVM.menuOptions.remove(at: Index)
+                    if(isEdit){
+                        storeRegiVM.delOption(old : storeRegiVM.menus[menuIndex] , Index : Index)
+                    }
                 }, label: {Image(systemName: "trash.fill")
                         .foregroundColor(Color.red)
                         .font(.system(size: 20))
@@ -427,6 +571,10 @@ struct AddMenuOptionsView : View {
             Button(action: {
                 storeRegiVM.objectWillChange.send()
                 storeRegiVM.menuOptions[Index].menuOptionList.append(MenuOptionList())
+                
+                if(isEdit){
+                    
+                }
             }, label: {
                 VStack{
                     Text("선택 목록 등록").foregroundColor(Color.black)
@@ -441,7 +589,7 @@ struct AddMenuOptionsView : View {
 }
 
 struct AddMenuOptionListView : View {
-    @ObservedObject var storeRegiVM: StoreRegisterViewModel
+    @ObservedObject var storeRegiVM: StoreViewModel
     var Index2 : Int
     var listIndex : Int
     @State var title : String = ""
@@ -494,11 +642,5 @@ struct AddMenuOptionListView : View {
 
 
         }.padding(.trailing, 20)
-    }
-}
-
-struct RegiMenuView_Previews: PreviewProvider {
-    static var previews: some View {
-        RegisterMenuView(StoreRegisterViewModel() )
     }
 }

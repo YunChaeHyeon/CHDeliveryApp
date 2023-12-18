@@ -11,11 +11,16 @@ import SwiftUI
 
 
 struct MyStoreRegisterView : View {
-    // 작성 혹은 편집한 메모의 저장 버튼을 누를 시 자동으로 창을 닫기 위해 선언
+    @ObservedObject var storeVM : StoreViewModel 
+    
     @Environment(\.dismiss) private var dismiss
+    var imageconversion : ImageConversion = ImageConversion()
 
     @ObservedObject var homeState : HomeState
-    @ObservedObject var storeRegiVM = StoreRegisterViewModel()
+    var isRegister : Bool
+    var storeData : Store
+    var isEdit : Bool
+
     
     @State var image : Image?
     @State var selectedUIImage : UIImage?
@@ -26,8 +31,9 @@ struct MyStoreRegisterView : View {
         image = Image(uiImage: selectedImage)
         
         let imageData = selectedUIImage!.jpegData(compressionQuality: 0.5)! as NSData
-        storeRegiVM.storeImage = imageData
+        storeVM.storeImage = imageData
     }
+
     
     var body: some View {
 
@@ -48,16 +54,36 @@ struct MyStoreRegisterView : View {
                                 .padding(.bottom , 20)
                         }
                         else{
-                            VStack{
-                                Text("대표 사진 등록").foregroundColor(Color.black)
-                                Image(systemName: "plus.app.fill")
-                                    .foregroundColor(Color.black)
-                                    .font(.system(size: 50))
-                            }.padding(.vertical, 20)
+                            if(isRegister){
+                                VStack{
+                                    Text("대표 사진 등록").foregroundColor(Color.black)
+                                    Image(systemName: "plus.app.fill")
+                                        .foregroundColor(Color.black)
+                                        .font(.system(size: 50))
+                                }.padding(.vertical, 20)
+                            }else{
+                                image?
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .ignoresSafeArea(edges: .top)
+                                    .frame(height: 170)
+                                    .clipped()
+                                    .padding(.bottom , 20)
+                            }
+
                         }
 
 
                     })
+                        .onAppear{
+                            //초기화
+                            if(!isRegister){
+                                //가게 기본정보
+                                image = imageconversion.getImage(_image: storeData.storeMainImage!)
+                                
+                            }
+                            
+                        }
                         .sheet(isPresented: $showImagePicker, onDismiss: {
                             loadImage()
                             //imageChangeWhether = true
@@ -66,29 +92,48 @@ struct MyStoreRegisterView : View {
                         }
                     
                     //Title
-                    TextField("가게 이름 입력", text: $storeRegiVM.storeName)
-                        .frame(width: 150)
-                        .textFieldStyle(PlainTextFieldStyle())
-                        .fixedSize(horizontal: true, vertical: false)
-                        //.background(Color(uiColor: .secondarySystemBackground))
-                    // Text alignment.
-                        .multilineTextAlignment(.center)
-                    // TextField spacing.
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 16)
-                        .background(borderStyleView())
+                    if(isRegister){
+                        TextField("가게 이름 입력", text: $storeVM.storeName)
+                            .frame(width: 150)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .fixedSize(horizontal: true, vertical: false)
+                            .multilineTextAlignment(.center)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .background(borderStyleView())
+                    }else{
+                            TextField("\(storeData.storeName)", text: $storeVM.storeName)
+                                .frame(width: 150)
+                                .textFieldStyle(PlainTextFieldStyle())
+                                .fixedSize(horizontal: true, vertical: false)
+                                .multilineTextAlignment(.center)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 16)
+                                .background(borderStyleView())
+                                .onAppear{
+                                    storeVM.storeName = storeData.storeName
+                                }
+                        
+
+                    }
+
                     
 
                     //2 탭바 : 배달주문 / 포장/방문 주문
                     //배달주문 최소주문금액 , 결제 방법 , 배달 시간 , 배달팁
-                    deliveryOrpackagingTopTabBar(storeData: Store(), storeRegiVM: storeRegiVM, tabIndex: 0 , isStoreView: false)
+                        deliveryOrpackagingTopTabBar(storeData: storeData, storeRegiVM: storeVM, tabIndex: 0 , isStoreView: false , isEdit: isEdit)
+
+
+
                     //최소주문금액 /이용방법 /픽업 시간/ 위치 안내 (지도) / 결제방법
                 } //VStack
                 .background(Color.white)
 
                 VStack{
                     //3 탭바 : 메뉴 / 정보 / 리뷰
-                    MenuOrInformaOrReview( storeData : Store() ,storeRegiVM: storeRegiVM,tabIndex: 0 , isStoreRegister: true)
+                        MenuOrInformaOrReview( storeData : storeData ,storeRegiVM: storeVM,tabIndex: 0 , isStoreRegister: true , isEdit: isEdit)
+
+
                 }.background(Color.white)
             }
     //            //.background(Color(hex: 0xEFEFEF))//ScrollView
@@ -124,7 +169,7 @@ struct MyStoreRegisterView : View {
                     Color.white
             })
 
-            MyStoreRegiButton(homeState : homeState ,storeRegiVM: storeRegiVM)
+            MyStoreRegiButton(homeState : homeState ,storeRegiVM: storeVM , storeData: storeData, isRegister: isRegister)
 
         } // Zstack
 
@@ -135,19 +180,33 @@ struct MyStoreRegisterView : View {
 
 struct MyStoreRegiButton : View {
     @ObservedObject var homeState : HomeState
-    @ObservedObject var storeRegiVM: StoreRegisterViewModel
+    @ObservedObject var storeRegiVM: StoreViewModel
+    var storeData : Store
+    var isRegister : Bool
     @Environment(\.dismiss) private var dismiss
     var body: some View {
 
         HStack{
 
                 Button(action: {
-                    storeRegiVM.addStore()
                     homeState.isVisibilityTap()
+                    if(isRegister){
+                        //등록
+                        storeRegiVM.addStore()
+                    }else{
+                        //수정
+                        storeRegiVM.editStore(old: storeData)
+                    }
+
                     dismiss()
                 }, label: {
                     HStack{
-                        Text("가게 등록하기")
+                        if(isRegister){
+                            Text("가게 등록하기")
+                        }else{
+                            Text("가게 수정하기")
+                        }
+                        
                     }
                     .font(.system(size:20 , weight: .bold))
                     .foregroundColor(Color.white)
@@ -163,10 +222,4 @@ struct MyStoreRegiButton : View {
     }
 }
 
-struct MyStoreRegisterView_previews : PreviewProvider {
-
-    static var previews : some View {
-        MyStoreRegisterView(homeState: HomeState())
-    }
-}
 

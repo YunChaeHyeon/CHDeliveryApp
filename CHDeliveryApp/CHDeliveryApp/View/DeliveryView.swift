@@ -21,7 +21,7 @@ struct DeliveryView: View {
                     
                     DeliveryGuideView()
                     
-                    DeliveryGridView()
+                    DeliveryGridView(homeState : homeState)
                     
                 }.background(Color.white)
                     .padding(20)
@@ -149,7 +149,7 @@ struct Category {
 }
 
 struct DeliveryGridView : View {
-    //@ObservedObject var homeState : HomeState
+    @ObservedObject var homeState : HomeState
     
     let image = ["porkfeet","soup","sushi","pizza","meat","moon","pasta","chicken","Jajangmyeon","rice","lunchbox","tteokbokki","hamburger","ricenoodles"]
     
@@ -170,7 +170,7 @@ struct DeliveryGridView : View {
         LazyVGrid(columns: columns) {
             
                         ForEach(0..<14) { ix in
-                            NavigationLink(destination: SelectShopView(tabIndex: ix) , tag: ix, selection: self.$tag , label: {
+                            NavigationLink(destination: SelectShopView(tabIndex: ix , homeState: homeState) , tag: ix, selection: self.$tag , label: {
                                 Button(action: {
                                     self.tag = ix
                                 } , label: {

@@ -12,10 +12,20 @@ class MenuOptionList : Object {
     @objc dynamic var menuOptionTitle : String = ""
     @objc dynamic var menuPrice : Int = 0
 }
+extension MenuOptionList {
+    static func editMenuOptionList(_ menuOpList : MenuOptionList , menuOpName : String ){
+        menuOpList.menuOptionTitle = menuOpName
+    }
+}
 
 class MenuOption : Object {
     @objc dynamic var menuOptionsTilte : String = ""
     var menuOptionList = List<MenuOptionList>()
+}
+extension MenuOption {
+    static func editMenuOption(_ menuOp : MenuOption , menuOpName : String ){
+        menuOp.menuOptionsTilte = menuOpName
+    }
 }
 
 class MenuRequiredList : Object {
@@ -32,7 +42,6 @@ class Menu : Object {
     @objc dynamic var menuImage: NSData? = nil
     @objc dynamic var menuName : String = ""
     @objc dynamic var menuDefaultPrice : Int = 0
-    
     //아래가 추가의 필수는 아님
     //가격 선택 필수
     var menuRequired = List<MenuRequired>()
@@ -41,6 +50,8 @@ class Menu : Object {
 }
 
 extension Menu  {
+    static var RequAddcount = 0
+    static var RequListAddcount = 0
     static var configuration = Realm.Configuration(schemaVersion: 3)
     private static var realm = try! Realm(configuration: configuration)
     
@@ -52,6 +63,71 @@ extension Menu  {
     static func addMenu(_ menu: Menu) {
         try! realm.write {
             realm.add(menu)
+        }
+    }
+    
+    static func addRequ(_ menu : Menu){
+        try! realm.write {
+            menu.menuRequired.append(MenuRequired())
+        }
+    }
+    
+    static func delRequ(_ menu : Menu , Index : Int){
+        try! realm.write {
+            menu.menuRequired.remove(at: Index)
+        }
+    }
+    
+    static func addRequList(_ menu : Menu  , Index : Int){
+        try! realm.write {
+            menu.menuRequired[Index].menuRequiredList.append(MenuRequiredList())
+        }
+    }
+    
+    static func delRequList(_ menu : Menu , Index : Int , ListIndex : Int ){
+        try! realm.write {
+            menu.menuRequired[Index].menuRequiredList.remove(at: ListIndex)
+        }
+    }
+    
+    static func addOption(_ menu : Menu ){
+        try! realm.write {
+            menu.menuOptions.append(MenuOption())
+        }
+    }
+    
+    static func delOption(_ menu : Menu , Index : Int){
+        try! realm.write {
+            menu.menuOptions.remove(at: Index)
+        }
+    }
+    
+    static func editMenu(_ menu : Menu , menuImage : NSData , menuName : String ,menuDefaultPrice : Int , menuRequireds : [MenuRequired] , menuOptions : [MenuOption] ){
+        try! realm.write {
+            menu.menuImage = menuImage
+            menu.menuName = menuName
+            menu.menuDefaultPrice = menuDefaultPrice
+            
+            print("menuRequ count : \(menuRequireds.count)" )
+            if(menuRequireds.count > 0){
+                for count in 1...menuRequireds.count{
+                    menu.menuRequired[count-1].menuRequitedTilte = menuRequireds[count-1].menuRequitedTilte
+                    menu.menuRequired[count-1].menuRequiredList = menuRequireds[count-1].menuRequiredList
+                    if(menuRequireds[count-1].menuRequiredList.count > 0){
+                        print("menuList count : \(menuRequireds[count-1].menuRequiredList.count)")
+                        for listCount in 1...menuRequireds[count-1].menuRequiredList.count {
+                            menu.menuRequired[count-1].menuRequiredList[listCount-1].menuRequiredTitle = menuRequireds[count-1].menuRequiredList[listCount-1].menuRequiredTitle
+                            
+                            menu.menuRequired[count-1].menuRequiredList[listCount-1].menuPrice = menuRequireds[count-1].menuRequiredList[listCount-1].menuPrice
+                        }
+                    }
+                }
+            }
+            //menu.menuRequired.removeAll()
+            //menu.menuRequired.append(objectsIn: menuRequireds)
+            //menu.menuOptions.removeAll()
+            //menu.menuOptions.append(objectsIn: menuOptions)
+            
         }
     }
 }
@@ -80,6 +156,14 @@ extension Store {
         realm.objects(Store.self)
     }
     
+    static func findMenuAll() -> Results<Menu> {
+        realm.objects(Menu.self)
+    }
+    
+    static func findStore(storeName : String ) -> Results<Store>{
+        return realm.objects(Store.self).filter("storeName == '\(storeName)'")
+    }
+    
     // realm객체에 값을 추가
     static func addStore(_ store: Store) {
         try! realm.write {
@@ -95,13 +179,15 @@ extension Store {
     }
     
     // realm객체의 값을 업데이트
-    static func editStore(store: Store, storeName: String, minDelivery: Int, payMethod: String ,minTime: Int, tip:Int ) {
+    static func editStore(store: Store, storeName: String, storeCategory : String ,minDelivery: Int, payMethod: String ,minTime: Int, tip:Int  ) {
         try! realm.write {
             store.storeName = storeName
+            store.storeCategory = storeCategory
             store.minDelivery = minDelivery
             store.payMethod = payMethod
             store.minTime = minTime
             store.tip = tip
+          
         }
     }
     

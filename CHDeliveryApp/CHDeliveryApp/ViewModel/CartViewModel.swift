@@ -71,8 +71,6 @@ class CartViewModel : ObservableObject {
     }
     
     func delViewModelCartMenu(cartIndex : Int ,removeMenuIndex: Int){
-        print("cartMenus count : \(carts[cartIndex].cartMenus.count)")
-        print("cart count : \(carts.count)")
         let realm = try! Realm()
         try! realm.write {
         carts[cartIndex].cartMenus.remove(at: removeMenuIndex)
@@ -80,16 +78,12 @@ class CartViewModel : ObservableObject {
     }
     
     func delViewModelCart(removeIndex : Int){
-        print("cart count : \(carts.count)")
-        print("cartMenus count : \(cartMenus.count)")
         carts.remove(at: removeIndex)
     }
     
     func UpCount(){
         count = count + 1
         total = price*count
-        print("count : \(count) price : \(price)")
-        print("total : \(total)")
     }
 
     func DownCount(){

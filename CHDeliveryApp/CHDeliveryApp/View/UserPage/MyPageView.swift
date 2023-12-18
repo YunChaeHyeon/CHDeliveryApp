@@ -26,7 +26,10 @@ struct MyPageView : View {
                             NavigationLink(destination: EditUserView(homeState : homeState , userVM: userVM) , tag: 2, selection: self.$tag ) {
                               EmptyView()
                             }
-                            NavigationLink(destination: MyStoreRegisterView(homeState : homeState ) , tag: 3, selection: self.$tag ) {
+                            NavigationLink(destination: MyStoreRegisterView(storeVM : StoreViewModel() ,homeState : homeState , isRegister: true , storeData: Store(), isEdit: false) , tag: 3, selection: self.$tag ) {
+                              EmptyView()
+                            }
+                            NavigationLink(destination: MyStoreListView(homeState : homeState ) , tag: 4, selection: self.$tag ) {
                               EmptyView()
                             }
 
@@ -106,7 +109,7 @@ struct MyPageView : View {
                                 
                                 Spacer()
                                 
-                                Button(action: {}, label: {
+                                Button(action: {self.tag = 4 }, label: {
                                     VStack{
                                     Image(systemName: "mail.stack").foregroundColor(Color.mint)
                                         Text("My 가게 관리") }}).foregroundColor(Color.black)

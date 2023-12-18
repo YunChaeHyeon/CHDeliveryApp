@@ -10,7 +10,8 @@ import RealmSwift
 
 struct ShopView: View {
     var storeData : Store
-    @ObservedObject var storeRegiVM : StoreRegisterViewModel = StoreRegisterViewModel()
+    @ObservedObject var homeState : HomeState
+    @ObservedObject var storeRegiVM : StoreViewModel = StoreViewModel()
     @ObservedObject var cartVM = CartViewModel()
     @ObservedObject var likeVM = LikeViewModel()
     @Environment(\.dismiss) private var dismiss
@@ -19,8 +20,9 @@ struct ShopView: View {
     @State var like : Bool = false
     @State var scale : CGFloat = 1
     
-    init(_ storeData : Store){
+    init(_ storeData : Store , _ homeState : HomeState){
         self.storeData = storeData
+        self.homeState = homeState
     }
     
     var body: some View {
@@ -112,17 +114,19 @@ struct ShopView: View {
                 
                 //2 탭바 : 배달주문 / 포장/방문 주문
                 //배달주문 최소주문금액 , 결제 방법 , 배달 시간 , 배달팁
-                deliveryOrpackagingTopTabBar(storeData : storeData ,storeRegiVM: StoreRegisterViewModel() , tabIndex: 0, isStoreView: true)
+                deliveryOrpackagingTopTabBar(storeData : storeData ,storeRegiVM: StoreViewModel() , tabIndex: 0, isStoreView: true , isEdit : false)
                 //최소주문금액 /이용방법 /픽업 시간/ 위치 안내 (지도) / 결제방법
             } //VStack
             .background(Color.white)
             
             VStack{
                 //3 탭바 : 메뉴 / 정보 / 리뷰
-                MenuOrInformaOrReview(storeData : storeData ,storeRegiVM: StoreRegisterViewModel() ,tabIndex: 0 , isStoreRegister: false)
+                MenuOrInformaOrReview(storeData : storeData ,storeRegiVM: StoreViewModel() ,tabIndex: 0 , isStoreRegister: false , isEdit: false)
             }.background(Color.white)
         }
-            //.background(Color(hex: 0xEFEFEF))//ScrollView
+        .onAppear{
+            homeState.isHiddenTap()
+        }
         .background(
             VStack(spacing: .zero) {
                 Color.white
@@ -137,7 +141,7 @@ struct ShopView: View {
                             ToolbarItem(placement: .navigationBarLeading) {
                                 HStack{
                                     Button {
-                                        print("Custom Action")
+                                        homeState.isVisibilityTap()
                                         dismiss()
 
                                     } label: {
@@ -173,9 +177,10 @@ struct ShopView: View {
 struct MenuOrInformaOrReview : View {
     var storeData : Store
     @ObservedObject var cartVM = CartViewModel()
-    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    @ObservedObject var storeRegiVM : StoreViewModel
     @State var tabIndex: Int
     var isStoreRegister : Bool
+    var isEdit : Bool
     
     @State private var tag:Int? = nil
     
@@ -191,7 +196,7 @@ struct MenuOrInformaOrReview : View {
                 onButtonTapped(index: 1)
             }
             Spacer()
-            if(isStoreRegister == false){
+            if(!isStoreRegister){
                 TabBarButton(text: "리뷰", isSelected: .constant(tabIndex == 2)).onTapGesture {
                     onButtonTapped(index: 2)
                 }
@@ -201,7 +206,7 @@ struct MenuOrInformaOrReview : View {
         }
     .border(width: 1, edges: [.bottom], color: .black)
         
-        if(isStoreRegister == false){
+        if(!isStoreRegister && !isEdit){
                 //가게 찾아 볼 때
                 if(tabIndex == 0){
                     VStack{
@@ -249,13 +254,19 @@ struct MenuOrInformaOrReview : View {
                 VStack{
                     ForEach(storeRegiVM.menus.indices , id:\.self){
                         index in
-                        AddMenuView(storeRegiVM : storeRegiVM, Index: index)
-                        Divider().background(Color.blue)
+                        NavigationLink(destination: RegisterMenuView(storeRegiVM: storeRegiVM, storeData: storeData, isMenuEdit: true , isEdit : isEdit,isRegister: isStoreRegister, menuIndex: index ), tag: index, selection: self.$tag, label: {
+                            AddMenuView(storeRegiVM : storeRegiVM, Index: index).foregroundColor(Color.black)
+                            Divider().background(Color.blue)
+
+                        }
+                            
+                        )
+
                     }
                     
-                    NavigationLink(destination: RegisterMenuView(storeRegiVM) , tag: 0, selection: self.$tag , label: {
+                    NavigationLink(destination: RegisterMenuView(storeRegiVM: storeRegiVM, storeData: storeData, isMenuEdit: false , isEdit: false ,isRegister: isStoreRegister, menuIndex: 0) , tag: 100, selection: self.$tag , label: {
                         Button(action: {
-                            self.tag = 0
+                            self.tag = 100
                         }, label: {
                             VStack{
 
@@ -267,6 +278,14 @@ struct MenuOrInformaOrReview : View {
 
                         }).padding(20)
                     })
+                }.onAppear{
+                    print("isEdit? : \(isEdit)")
+                    
+                    if(isEdit){
+                        storeRegiVM.menus = Array(storeData.menus)
+                    }
+
+                    
                 }
 
                 
@@ -298,7 +317,7 @@ struct MenuOrInformaOrReview : View {
 }
 
 struct AddMenuView : View {
-    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    @ObservedObject var storeRegiVM : StoreViewModel
     @State var Index : Int
     var body: some View {
 
@@ -333,11 +352,12 @@ struct AddMenuView : View {
     
 struct TextOrTextField : View {
     var storeData : Store
-    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    @ObservedObject var storeRegiVM : StoreViewModel
     
     @State var isStoreView : Bool
     @State var textTilte : String
     var saveTextNumber : Int
+    var isEdit : Bool
     
     var options : [String] = ["바로결제","만나서 결제","바로결제 , 만나서 결제"]
     var categorys : [String] = ["족발 보쌈" , "찜 탕 찌개" , "일식", "피자","고기","야식","양식","치킨","중식","백반","도시락","분식","패스트푸드","아시안"]
@@ -349,14 +369,24 @@ struct TextOrTextField : View {
                 if(isStoreView){
                     Text("\(storeData.minDelivery)")
                 }else{
-                    TextField(textTilte , value: $storeRegiVM.minDelivery , format: .number)
-                        .frame(width: 80)
-                        .textFieldStyle(PlainTextFieldStyle())
-                        .fixedSize(horizontal: true, vertical: false)
-                        .multilineTextAlignment(.center)
-                        .padding(.vertical, 5)
-                        .padding(.horizontal, 16)
-                        .background(borderStyleView())
+                    HStack{
+                        TextField(textTilte , value: $storeRegiVM.minDelivery , format: .number)
+                            .frame(width: 80)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .fixedSize(horizontal: true, vertical: false)
+                            .multilineTextAlignment(.center)
+                            .padding(.vertical, 5)
+                            .padding(.horizontal, 16)
+                            .background(borderStyleView())
+                            .onAppear{
+                                if(isEdit){
+                                    storeRegiVM.minDelivery = storeData.minDelivery
+                                }
+                                
+                            }
+
+                    }
+
                 }
 
             case 2:
@@ -371,8 +401,11 @@ struct TextOrTextField : View {
                             }
                         }.padding(.leading , 10)
                             .accentColor(.green)
-                        Image(systemName: "chevron.right").foregroundColor(Color.green)
-                            .padding(.trailing ,5)
+                            .onAppear{
+                                if(isEdit){
+                                    storeRegiVM.storeCategory = storeData.storeCategory
+                                }
+                            }
                             
                     }
                     .overlay(
@@ -393,8 +426,11 @@ struct TextOrTextField : View {
                             }
                         }.padding(.leading , 10)
                             .accentColor(.mint)
-                        Image(systemName: "chevron.right").foregroundColor(Color.mint)
-                            .padding(.trailing ,5)
+                            .onAppear{
+                                if(isEdit){
+                                    storeRegiVM.payMethod = storeData.payMethod
+                                }
+                            }
                             
                     }
                     .overlay(
@@ -416,6 +452,11 @@ struct TextOrTextField : View {
                         .padding(.vertical, 5)
                         .padding(.horizontal, 16)
                         .background(borderStyleView())
+                        .onAppear{
+                            if(isEdit){
+                                storeRegiVM.minTime = storeData.minTime
+                            }
+                        }
                 }
 
             case 5:
@@ -424,12 +465,18 @@ struct TextOrTextField : View {
                 }else{
                     TextField(textTilte , value: $storeRegiVM.tip , format: .number )
                         .frame(width: 80)
+                        .keyboardType(.numberPad)
                         .textFieldStyle(PlainTextFieldStyle())
                         .fixedSize(horizontal: true, vertical: false)
                         .multilineTextAlignment(.center)
                         .padding(.vertical, 5)
                         .padding(.horizontal, 16)
                         .background(borderStyleView())
+                        .onAppear{
+                            if(isEdit){
+                                storeRegiVM.tip = storeData.tip
+                            }
+                        }
                 }
 
                 
@@ -442,9 +489,10 @@ struct TextOrTextField : View {
 
 struct deliveryOrpackagingTopTabBar: View {
     var storeData : Store
-    @ObservedObject var storeRegiVM : StoreRegisterViewModel
+    @ObservedObject var storeRegiVM : StoreViewModel
     @State var tabIndex: Int
     @State var isStoreView : Bool
+    var isEdit : Bool
     
     var body: some View {
             HStack(spacing: 20) {
@@ -464,27 +512,27 @@ struct deliveryOrpackagingTopTabBar: View {
             VStack(alignment: .leading, spacing: 15){
                 HStack{
                     Text("카테고리").padding(.trailing, 59)
-                    TextOrTextField(storeData : storeData ,storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "", saveTextNumber: 2)
+                    TextOrTextField(storeData : storeData ,storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "", saveTextNumber: 2 ,isEdit: isEdit)
                 }
                 HStack{
                     Text("결제 방법").padding(.trailing, 55)
-                    TextOrTextField(storeData : storeData , storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "", saveTextNumber: 3)
+                    TextOrTextField(storeData : storeData , storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "", saveTextNumber: 3 , isEdit : isEdit)
                 }
                 HStack{
                     Text("최소 주문 금액").padding(.trailing, 20)
-                    TextOrTextField(storeData : storeData , storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "금액 입력", saveTextNumber: 1)
+                    TextOrTextField(storeData : storeData , storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "금액 입력", saveTextNumber: 1 , isEdit : isEdit)
                     Text("원")
                     Spacer()
                 }
                 HStack{
                     Text("배달 시간").padding(.trailing, 55)
-                    TextOrTextField(storeData : storeData , storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "시간 입력", saveTextNumber: 4)
+                    TextOrTextField(storeData : storeData , storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "시간 입력", saveTextNumber: 4, isEdit : isEdit)
                     Text("분 소요 예상")
                 }
 
                 HStack{
                     Text("배달팁").padding(.trailing, 75)
-                    TextOrTextField(storeData : storeData , storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "금액 입력", saveTextNumber: 5)
+                    TextOrTextField(storeData : storeData , storeRegiVM: storeRegiVM, isStoreView: isStoreView, textTilte: "금액 입력", saveTextNumber: 5, isEdit: isEdit)
                     Text("원")
                 }
                 
@@ -522,8 +570,3 @@ struct deliveryOrpackagingTopTabBar: View {
     
 }
 
-struct ShopView_Previews: PreviewProvider {
-    static var previews: some View {
-        ShopView(Store())
-    }
-}

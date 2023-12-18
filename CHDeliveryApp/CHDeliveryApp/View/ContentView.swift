@@ -62,18 +62,17 @@ struct BottomTapbarView: View {
             TabView(selection:$tabSelection){
 
                 
-                Color.yellow
-                    .ignoresSafeArea(.all, edges: .all)
+                SearchView(homeState : homeState)
+                    //.ignoresSafeArea(.all, edges: .all)
                     .tag("select")
                 
-                MyLikeView()
+                MyLikeView(homeState : homeState)
                     .tag("favorite")
                 
                 HomeView(homeState: homeState)
                     .tag("home")
                 
-                Color.blue
-                    .ignoresSafeArea(.all, edges: .all)
+                MyOrderView()
                     .tag("order")
                 
                 MyPageView(homeState: homeState , userVM: userVM )

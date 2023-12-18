@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-class StoreRegisterViewModel: ObservableObject {
+class StoreViewModel: ObservableObject {
     
     @Published var stores: [Store] = Array(Store.findAll())
     
@@ -81,6 +81,35 @@ class StoreRegisterViewModel: ObservableObject {
         self.menus.append(menu)
     }
     
+    func addRequ(old : Menu){
+        Menu.addRequ(old)
+    }
+    
+    func delRequ(old : Menu , Index : Int){
+        Menu.delRequ(old , Index: Index)
+    }
+    
+    func addRequList(old : Menu , Index : Int){
+        Menu.addRequList(old , Index: Index)
+    }
+    
+    func delRequList(old : Menu , Index : Int , ListIndex : Int){
+        Menu.delRequList(old , Index: Index , ListIndex: ListIndex)
+    }
+    
+    func addOption(old : Menu){
+        Menu.addOption(old)
+    }
+    
+    func delOption(old : Menu , Index : Int){
+        Menu.delOption(old , Index: Index)
+    }
+    
+    func editMenu(old : Menu) {
+        
+        Menu.editMenu(old, menuImage: menuImage!, menuName: menuName, menuDefaultPrice: menuDefaultPrice , menuRequireds: menuRequireds , menuOptions: menuOptions )
+    }
+
     //store 등록
     func addStore()
     {
@@ -105,19 +134,33 @@ class StoreRegisterViewModel: ObservableObject {
         self.stores = Array(Store.findAll())
     }
     
+    func FindDelStore(storeName : String){
+        
+        Store.delStore(findStoreData(storeName: storeName))
+    }
+ 
     func delStore(old : Store){
         Store.delStore(old)
     }
     
+    func delViewModelStore(removeIndex : Int){
+        stores.remove(at: removeIndex)
+    }
+    
     func editStore(old: Store) -> Void {
-        guard !storeName.isEmpty else { return }
-        guard !payMethod.isEmpty else { return }
-        
-        Store.editStore(store: old, storeName: storeName, minDelivery: minDelivery, payMethod: payMethod, minTime: minTime, tip: tip)
+       // guard !storeName.isEmpty else { return }
+       // guard !payMethod.isEmpty else { return }
+
+        Store.editStore(store: old, storeName: storeName, storeCategory: storeCategory , minDelivery: minDelivery, payMethod: payMethod, minTime: minTime, tip: tip )
     }
     
     func editStoreLike(old : Store , like : Bool ){
         Store.editStoreLike(store: old, like: like)
+    }
+    
+    func findStoreData(storeName : String) -> Store {
+        let findStoreData : [Store] = Array(Store.findStore(storeName: storeName))
+        return findStoreData[0]
     }
     
 }

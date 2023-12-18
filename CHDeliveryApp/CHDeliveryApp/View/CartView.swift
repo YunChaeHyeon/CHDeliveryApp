@@ -23,13 +23,6 @@ struct CartView: View {
                     
                 }
 
-                VStack{
-                    //총 주문금액
-                    //배달팁
-                    
-                    //결제 예정 금액
-                }
-
             
             }
             .padding(.bottom , 70)
@@ -194,7 +187,8 @@ struct CartMenuView : View {
          .onAppear(){
              price = cartMenu.price
              count = cartMenu.count
-             total = price * count 
+             total = price * count
+             CartVM.total = total
          }
         
         //수량
@@ -204,6 +198,7 @@ struct CartMenuView : View {
                 //Spacer()
                 Button(action: {
                     DownCount()
+                    CartVM.total = total
                 }, label: {Image(systemName: "minus")})
                     .padding(.trailing,10)
                 
@@ -211,6 +206,7 @@ struct CartMenuView : View {
                 
                 Button(action: {
                     UpCount()
+                    CartVM.total = total
                 }, label: {Image(systemName: "plus")})
                     .padding(.leading , 10)
             }

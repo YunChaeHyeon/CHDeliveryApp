@@ -26,8 +26,6 @@ class LikeViewModel: ObservableObject {
     
     func delLike(old : Store){
         var findLikeStore : [Like] = Array(Like.findStore(storeData: old))
-//        print(Like.findStore(storeData: old))
-        //print(findLikeStore[1])
         Like.delLikeStore(findLikeStore[0])
     }
 }
