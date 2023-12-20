@@ -69,11 +69,16 @@ struct CartView: View {
 }
 
 struct CartOrderButton : View {
+    @State private var tag:Int? = nil
     @StateObject var CartVM : CartViewModel
     var body: some View {
         HStack{
-
-                Button(action: {}, label: {
+            NavigationLink(destination: TossPaymentsContentView(paymentPrice: CartVM.total) , tag: 1, selection: self.$tag ) {
+              EmptyView()
+            }
+                Button(action: {
+                    self.tag = 1
+                }, label: {
                     HStack{
                         Text("배달 주문하기")
                         Text("\(CartVM.total)원")

@@ -69,24 +69,29 @@ extension Menu  {
     static func addRequ(_ menu : Menu){
         try! realm.write {
             menu.menuRequired.append(MenuRequired())
+            //realm.add(menu.menuRequired)
+            
         }
     }
     
     static func delRequ(_ menu : Menu , Index : Int){
         try! realm.write {
-            menu.menuRequired.remove(at: Index)
+            realm.delete(menu.menuRequired[Index])
+            
         }
     }
     
     static func addRequList(_ menu : Menu  , Index : Int){
         try! realm.write {
             menu.menuRequired[Index].menuRequiredList.append(MenuRequiredList())
+            realm.add(menu.menuRequired[Index].menuRequiredList)
+            
         }
     }
     
     static func delRequList(_ menu : Menu , Index : Int , ListIndex : Int ){
         try! realm.write {
-            menu.menuRequired[Index].menuRequiredList.remove(at: ListIndex)
+            realm.delete(menu.menuRequired[Index].menuRequiredList[ListIndex])
         }
     }
     

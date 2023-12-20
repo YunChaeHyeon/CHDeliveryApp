@@ -58,6 +58,14 @@ class UserViewModel: ObservableObject {
         User.addUser(user)
     }
     
+    func addUser(name : String , userImage : NSData ) {
+        let user = User()
+        user.name = name
+        user.image = userImage
+        self.users.append(user)
+        User.addUser(user)
+    }
+    
     func delUser(old: User) -> Void {
         User.delUser(old)
     }

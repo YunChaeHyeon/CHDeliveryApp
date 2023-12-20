@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+
+
 struct RegisterMenuView : View {
     @Environment(\.dismiss) private var dismiss
     var imageconversion : ImageConversion = ImageConversion()
@@ -31,10 +33,6 @@ struct RegisterMenuView : View {
         
         let imageData = selectedUIImage!.jpegData(compressionQuality: 0.5)! as NSData
         storeRegiVM.menuImage = imageData
-    }
-        
-    private func deleteItem(at indexSet: IndexSet) {
-        //self.storeRegiVM.menuRequirName.remove(atOffsets: indexSet)
     }
     
     var body: some View {
@@ -128,24 +126,20 @@ struct RegisterMenuView : View {
                             .padding(.horizontal, 16)
                             .background(borderStyleView())
                     }.padding(.horizontal , 20)
-                    .onAppear{
-                        if(isEdit){
-                            storeRegiVM.menuDefaultPrice = storeData.menus[menuIndex].menuDefaultPrice
-                        }
-                    }
-
-                    
                     //Divider().background(Color.black)
                 //}//VStack
                     .onDisappear{
-                        storeRegiVM.menuRequireds.removeAll()
-                        storeRegiVM.menuOptions.removeAll()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                                storeRegiVM.menuRequireds.removeAll()
+                                storeRegiVM.menuOptions.removeAll()
+                        }
+
                     }
                     .onAppear{
                         //isEdit 루트 -> (내 가게 수정) -> 리스트 선택 -> 수정할 가게 정보,메뉴 뜸
                         if(isEdit){
                             storeRegiVM.menuName = storeData.menus[menuIndex].menuName
-                            
+                            storeRegiVM.menuDefaultPrice = storeData.menus[menuIndex].menuDefaultPrice
                                 //Required 초기화(init)
                                 if(storeData.menus[menuIndex].menuRequired.count > 0){
                                     for count in 1...storeData.menus[menuIndex].menuRequired.count {
@@ -241,6 +235,7 @@ struct RegisterMenuView : View {
 
                 //필수 추가
                     Button(action: {
+                        storeRegiVM.objectWillChange.send()
                         storeRegiVM.menuRequireds.append( MenuRequired() )
                         if(isEdit){
                             storeRegiVM.addRequ(old: storeRegiVM.menus[menuIndex])
@@ -266,7 +261,7 @@ struct RegisterMenuView : View {
 
                 //선택 추가
                     Button(action: {
-
+                        
                         storeRegiVM.menuOptions.append(MenuOption())
                         if(isEdit){
                             storeRegiVM.addOption(old: storeRegiVM.menus[menuIndex])
@@ -302,6 +297,9 @@ struct RegisterMenuView : View {
             }
             
         }//ZStack
+        .onTapGesture {
+            hideKeyboard()
+        }
         .onAppear(){
             if(isMenuEdit){
                 if(isEdit){
@@ -332,9 +330,12 @@ struct MenuAddButton : View {
         HStack{
 
                 Button(action: {
+                    
                     if(isMenuEdit){
+                        storeRegiVM.objectWillChange.send()
                         storeRegiVM.editMenu(old: menu)
                     }else{
+                        
                         storeRegiVM.addMenu()
                     }
                     
@@ -374,7 +375,7 @@ struct AddMenuRequiredView : View {
                 Spacer()
                 
                 Button(action: {
-
+                        storeRegiVM.objectWillChange.send()
                         storeRegiVM.menuRequireds.remove(at: Index)
                     if(isEdit){
                         storeRegiVM.delRequ(old : storeRegiVM.menus[menuIndex] , Index : Index)
@@ -402,7 +403,7 @@ struct AddMenuRequiredView : View {
                     .padding(.horizontal, 16)
                     .background(borderStyleView())
                     .padding(.bottom , 10)
-                    .focused($focused)
+                    //.focused($focused)
 
                 
                     Spacer()
@@ -415,7 +416,7 @@ struct AddMenuRequiredView : View {
                     VStack{
                         ForEach(storeRegiVM.menuRequireds[self.Index].menuRequiredList.indices , id:\.self){ listindex in
 
-                            AddMenuRequiredListView(storeRegiVM : storeRegiVM , Index2: self.Index , listIndex: listindex , isEdit: isEdit , menuIndex: menuIndex)
+                            AddMenuRequiredListView(storeRegiVM : storeRegiVM , Index2: Index , listIndex: listindex , isEdit: isEdit , menuIndex: menuIndex)
                         }
                     }
 
@@ -451,19 +452,18 @@ struct AddMenuRequiredListView : View {
     var listIndex : Int
     var isEdit : Bool
     var menuIndex : Int
-    @State var title : String = ""
-    @State var price : String = ""
     
     var body: some View {
-        //추후 onCommit -> onEditingChanged 로 변경 포커스 받으면 false 안받으면 true 커밋
         HStack{
+
                 TextField("목록 입력", text:  Binding(get:  {
-                    self.Index2 < self.storeRegiVM.menuRequireds.count && self.listIndex < self.storeRegiVM.menuRequireds[Index2].menuRequiredList.count && self.Index2 < self.storeRegiVM.menuRequireds[Index2].menuRequiredList.count ?
+                    self.listIndex < self.storeRegiVM.menuRequireds[Index2].menuRequiredList.count ?
                     self.storeRegiVM.menuRequireds[Index2].menuRequiredList[listIndex].menuRequiredTitle : ""
 
                 }
                                                   ,set : {
                     storeRegiVM.objectWillChange.send()
+                    print("set : \(storeRegiVM.menuRequireds[Index2].menuRequiredList[listIndex].menuRequiredTitle)")
                     storeRegiVM.menuRequireds[Index2].menuRequiredList[listIndex].menuRequiredTitle = $0}))
                         .frame(width: 80)
                         .textFieldStyle(PlainTextFieldStyle())
@@ -474,14 +474,15 @@ struct AddMenuRequiredListView : View {
                         .background(borderStyleView())
                         .padding(.bottom , 10)
                         .padding(.horizontal,30)
+
                 Spacer()
 
-//                    .focused($focused)
-
             TextField("가격 입력", value : Binding(get: {
-                self.Index2 < self.storeRegiVM.menuRequireds.count && self.listIndex < self.storeRegiVM.menuRequireds[Index2].menuRequiredList.count && self.Index2 < self.storeRegiVM.menuRequireds[Index2].menuRequiredList.count ?
+                self.listIndex < self.storeRegiVM.menuRequireds[Index2].menuRequiredList.count ?
                 self.storeRegiVM.menuRequireds[Index2].menuRequiredList[listIndex].menuPrice : 0
-            } , set: {self.storeRegiVM.menuRequireds[Index2].menuRequiredList[listIndex].menuPrice = $0}), formatter: NumberFormatter())
+            } , set: {
+                storeRegiVM.objectWillChange.send()
+                self.storeRegiVM.menuRequireds[Index2].menuRequiredList[listIndex].menuPrice = $0}),  format: .number)
                     .frame(width: 80)
                     .textFieldStyle(PlainTextFieldStyle())
                     .fixedSize(horizontal: true, vertical: false)
@@ -509,7 +510,7 @@ struct AddMenuRequiredListView : View {
                 }
 
             })
-            
+
         }.padding(.trailing, 20)
         
     }
@@ -562,7 +563,7 @@ struct AddMenuOptionsView : View {
             //=====================================================================
             if(Index < storeRegiVM.menuOptions.count){
                 ForEach(storeRegiVM.menuOptions[Index].menuOptionList.indices , id:\.self){ listindex in
-                        AddMenuOptionListView(storeRegiVM : storeRegiVM , Index2: Index , listIndex: listindex)
+                    AddMenuOptionListView(storeRegiVM : storeRegiVM , Index2: self.Index , listIndex: listindex)
 
                 }
             }
@@ -597,8 +598,16 @@ struct AddMenuOptionListView : View {
 
     var body: some View {
         HStack{
-            TextField("목록 입력", text:  Binding(get:  {
-                self.Index2 < self.storeRegiVM.menuOptions.count && self.listIndex < self.storeRegiVM.menuOptions[Index2].menuOptionList.count && self.Index2 < self.storeRegiVM.menuOptions[Index2].menuOptionList.count ?
+            //ios 13 버전
+//            TextField("목록 입력", text:  Binding(get:  {
+//                self.Index2 < self.storeRegiVM.menuOptions.count && self.listIndex < self.storeRegiVM.menuOptions[Index2].menuOptionList.count && self.Index2 < self.storeRegiVM.menuOptions[Index2].menuOptionList.count ?
+//                self.storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuOptionTitle : ""
+//
+//            }
+//                                              ,set : {
+//                storeRegiVM.objectWillChange.send()
+//                storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuOptionTitle = $0}))
+            TextField("목록 입력", text:  Binding(get:  {self.listIndex < self.storeRegiVM.menuOptions[Index2].menuOptionList.count ?
                 self.storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuOptionTitle : ""
 
             }
@@ -616,8 +625,7 @@ struct AddMenuOptionListView : View {
                     .padding(.horizontal,30)
             Spacer()
 
-            TextField("가격 입력", value : Binding(get: {
-                self.Index2 < self.storeRegiVM.menuOptions.count && self.listIndex < self.storeRegiVM.menuOptions[Index2].menuOptionList.count && self.Index2 < self.storeRegiVM.menuOptions[Index2].menuOptionList.count ?
+            TextField("가격 입력", value : Binding(get: {self.listIndex < self.storeRegiVM.menuOptions[Index2].menuOptionList.count ?
                 self.storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuPrice : 0
             } , set: {self.storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuPrice = $0}), formatter: NumberFormatter())
                     .frame(width: 80)
@@ -644,3 +652,4 @@ struct AddMenuOptionListView : View {
         }.padding(.trailing, 20)
     }
 }
+

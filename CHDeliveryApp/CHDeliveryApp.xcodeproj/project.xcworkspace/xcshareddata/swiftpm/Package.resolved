@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "payment-sdk-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tosspayments/payment-sdk-ios.git",
+      "state" : {
+        "revision" : "ab8d47a80cb3de03a16953e3a3d7ec9d267cbf39",
+        "version" : "0.1.26"
+      }
+    },
+    {
       "identity" : "realm-core",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/realm-core",

@@ -87,9 +87,15 @@ struct EditUserView : View {
                     self.showingAlert = true
                     //userVM.add(name: name)
                 }else{
-                    if(user == nil){
+                    if(user == nil && image != nil ){
                         print("user == nil")
+                        let imageData = selectedUIImage!.jpegData(compressionQuality: 0.5)! as NSData
+                        userVM.addUser(name: name , userImage : imageData)
+
+                    }else if(user == nil && image == nil){
+                        print("user == nil && image == nil")
                         userVM.addUser(name: name)
+                        
                     }else{
                         self.showingAlert = false
                         print("user != nil")

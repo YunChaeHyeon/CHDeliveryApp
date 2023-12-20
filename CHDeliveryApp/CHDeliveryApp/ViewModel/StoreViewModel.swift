@@ -29,15 +29,9 @@ class StoreViewModel: ObservableObject {
     
     //MenuRequired
     @Published var menuRequireds : [MenuRequired] = Array<MenuRequired>()
-    
-        //MenuRequiredList
-    @Published var menuRequiredList : [MenuRequiredList] = Array<MenuRequiredList>()
-    
+
     //MenuOption
     @Published var menuOptions : [MenuOption] = Array<MenuOption>()
-    
-        //MenuOptionList
-    @Published var menuOptionList : [MenuOptionList] = Array<MenuOptionList>()
     
     
     func getMenuImage(index : Int) -> Image {
@@ -72,6 +66,8 @@ class StoreViewModel: ObservableObject {
     func addMenu() {
         let menu = Menu()
         
+        print("addMenu menuRequireds.count: \(menuRequireds.count)")
+       // print("addMenu menuRequireds.count: \(menuRequireds[0].menuRequiredList.count)")
         menu.menuRequired.append(objectsIn: menuRequireds)
         menu.menuOptions.append(objectsIn: menuOptions)
         menu.menuImage = menuImage
