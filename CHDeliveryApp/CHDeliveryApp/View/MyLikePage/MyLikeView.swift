@@ -11,20 +11,31 @@ struct MyLikeView : View {
     @ObservedObject var homeState : HomeState
     @ObservedObject var likeVM = LikeViewModel()
     @State private var tag:Int? = nil
+    @State var isVisible = false 
     
     var body: some View {
         var likes = likeVM.likeStores
         NavigationView {
             ScrollView{
                 
-                ForEach( likes , id : \.self ) {like in
-                    ForEach(like.stores , id: \.self){ store in
-                        NavigationLink( destination : ShopView(store , homeState) , tag: like.hashValue , selection: self.$tag , label: {
+                ForEach( likes , id : \.id ) {like in
+                    ForEach(like.stores , id: \.id){ store in
+                        NavigationLink( destination : ShopView( id : store.id ,storeData: store , homeState: homeState , isSelectView: false).onAppear{
+                            homeState.isHiddenTap()
+                        } , tag: like.hashValue , selection: self.$tag , label: {
                             LikeListView(storeData: store)
                         })
                         
                     }
                 }
+                .opacity(!isVisible ? 0:1)
+                .onAppear{
+                    isVisible = false
+                        withAnimation(.easeInOut(duration: 0.5)){
+                            isVisible = true
+                        }
+                }
+                
             }
             .listStyle(PlainListStyle())
             .background(Color(hex: 0xEFEFEF))
@@ -54,6 +65,7 @@ struct MyLikeView : View {
                                             }
                                         }
                 )
+        
         }.background(Color(hex: 0xEFEFEF))
     }
 }

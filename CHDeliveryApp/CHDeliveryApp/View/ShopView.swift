@@ -9,9 +9,11 @@ import SwiftUI
 import RealmSwift
 
 struct ShopView: View {
+    var id : String
     var storeData : Store
     @ObservedObject var homeState : HomeState
     @ObservedObject var storeRegiVM : StoreViewModel = StoreViewModel()
+    var isSelectView : Bool
     @ObservedObject var cartVM = CartViewModel()
     @ObservedObject var likeVM = LikeViewModel()
     @Environment(\.dismiss) private var dismiss
@@ -19,11 +21,6 @@ struct ShopView: View {
     
     @State var like : Bool = false
     @State var scale : CGFloat = 1
-    
-    init(_ storeData : Store , _ homeState : HomeState){
-        self.storeData = storeData
-        self.homeState = homeState
-    }
     
     var body: some View {
         
@@ -38,6 +35,7 @@ struct ShopView: View {
                         .clipped()
                         .padding(.bottom , 20)
                 }
+
                 //Title
                 Text("\(storeData.storeName)")
                     .font(.system(size: 25 , weight: .bold))
@@ -89,6 +87,7 @@ struct ShopView: View {
                                 likeVM.storeName = storeData.storeName
                                 likeVM.addLike(add: storeData)
                             }else{
+                                
                                 likeVM.delLike(old: storeData)
                             }
                         }
@@ -124,8 +123,8 @@ struct ShopView: View {
                 MenuOrInformaOrReview(storeData : storeData ,storeRegiVM: StoreViewModel() ,tabIndex: 0 , isStoreRegister: false , isEdit: false)
             }.background(Color.white)
         }
-        .onAppear{
-            homeState.isHiddenTap()
+        .onDisappear{
+            print("onDisappear")
         }
         .background(
             VStack(spacing: .zero) {
@@ -133,6 +132,7 @@ struct ShopView: View {
                     .frame(height : 100)
                     Color(hex: 0xEFEFEF)
         })
+        .navigationViewStyle(.stack)
             .shadow(color: .gray, radius: 2, x: 0, y: 2)
             .navigationBarBackButtonHidden(true)
             .toolbar {
@@ -141,7 +141,10 @@ struct ShopView: View {
                             ToolbarItem(placement: .navigationBarLeading) {
                                 HStack{
                                     Button {
-                                        homeState.isVisibilityTap()
+                                        if(!isSelectView){
+                                            homeState.isVisibilityTap()
+                                        }
+                                        
                                         dismiss()
 
                                     } label: {
@@ -156,7 +159,7 @@ struct ShopView: View {
                         }//ToolbarItem
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink(destination: CartView(homeState:  HomeState()) , tag: 1, selection: self.$tag , label: {
+                    NavigationLink(destination: CartView(homeState: homeState) , tag: 1, selection: self.$tag , label: {
                         Button(action: {self.tag = 1} ) {
                             Image(systemName: "cart")
                                 .foregroundColor(Color.black)
@@ -279,13 +282,9 @@ struct MenuOrInformaOrReview : View {
                         }).padding(20)
                     })
                 }.onAppear{
-                    print("isEdit? : \(isEdit)")
-                    
                     if(isEdit){
                         storeRegiVM.menus = Array(storeData.menus)
                     }
-
-                    
                 }
 
                 

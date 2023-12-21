@@ -14,6 +14,7 @@ class StoreViewModel: ObservableObject {
     
     @objc dynamic var storeImage: NSData? = nil
     
+    var storeID : String = ""
     @Published var storeName : String = ""
     @Published var storeCategory : String = "족발 보쌈"
     @Published var minDelivery : Int = 0
@@ -67,7 +68,6 @@ class StoreViewModel: ObservableObject {
         let menu = Menu()
         
         print("addMenu menuRequireds.count: \(menuRequireds.count)")
-       // print("addMenu menuRequireds.count: \(menuRequireds[0].menuRequiredList.count)")
         menu.menuRequired.append(objectsIn: menuRequireds)
         menu.menuOptions.append(objectsIn: menuOptions)
         menu.menuImage = menuImage
@@ -113,6 +113,7 @@ class StoreViewModel: ObservableObject {
         //guard !payMethod.isEmpty else { return }
         
         let store = Store()
+        store.id = UUID().uuidString
         store.storeMainImage = storeImage
         store.storeName = storeName
         store.storeCategory = storeCategory

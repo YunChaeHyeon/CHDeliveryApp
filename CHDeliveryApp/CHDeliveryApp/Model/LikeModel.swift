@@ -9,9 +9,13 @@ import Foundation
 import RealmSwift
 
 class Like : Object {
+    @objc dynamic var id = ""
     @objc dynamic var storeName = ""
     var stores = List<Store>()
     
+    override static func primaryKey() -> String? {
+        return "id"
+    }
 }
 
 extension Like {

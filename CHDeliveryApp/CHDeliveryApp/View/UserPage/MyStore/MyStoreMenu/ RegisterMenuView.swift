@@ -285,15 +285,21 @@ struct RegisterMenuView : View {
             
             if(isMenuEdit){
                 if(!isEdit){
-                    MenuAddButton(storeRegiVM: storeRegiVM , menu: Menu(), isMenuEdit:
-                                    isMenuEdit)
+                    //
+                        MenuAddButton(storeRegiVM: storeRegiVM , menu: Menu(), isMenuEdit:
+                                        isMenuEdit)
+
                 }else{
-                    MenuAddButton(storeRegiVM: storeRegiVM , menu: storeRegiVM.menus[menuIndex], isMenuEdit:
-                                    isMenuEdit)
+                    //가게수정 -> 메뉴 수정
+                        MenuAddButton(storeRegiVM: storeRegiVM , menu: storeRegiVM.menus[menuIndex], isMenuEdit:
+                                        isMenuEdit)
                 }
                  
             }else{
-                MenuAddButton(storeRegiVM: storeRegiVM , menu: Menu(), isMenuEdit: isMenuEdit)
+                //가게수정 -> 메뉴 등록
+                //가게 등록 -> 메뉴 등로
+                    MenuAddButton(storeRegiVM: storeRegiVM , menu: Menu(), isMenuEdit: isMenuEdit)
+
             }
             
         }//ZStack
@@ -332,14 +338,15 @@ struct MenuAddButton : View {
                 Button(action: {
                     
                     if(isMenuEdit){
-                        storeRegiVM.objectWillChange.send()
                         storeRegiVM.editMenu(old: menu)
                     }else{
-                        
                         storeRegiVM.addMenu()
+                        print("addMenu")
+                        print("\(storeRegiVM.menus.count)")
+                        
                     }
                     
-                    dismiss()
+                    //dismiss()
                 }, label: {
                     HStack{
                         if(isMenuEdit){

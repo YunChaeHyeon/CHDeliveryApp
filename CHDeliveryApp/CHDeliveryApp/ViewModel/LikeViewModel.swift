@@ -18,7 +18,9 @@ class LikeViewModel: ObservableObject {
         
         let like = Like()
         
+        like.id = UUID().uuidString
         like.storeName = storeName
+        
         like.stores.append(add)
         
         Like.addLike(like)

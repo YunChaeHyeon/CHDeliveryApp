@@ -139,7 +139,7 @@ extension Menu  {
 
 class Store : Object {
     
-   
+    @objc dynamic var id : String = ""
     @objc dynamic var storeMainImage: NSData? = nil
     @objc dynamic var storeName: String = "Null"
     @objc dynamic var storeCategory : String = "한식"
@@ -151,6 +151,9 @@ class Store : Object {
     
     var menus = List<Menu>()
     
+    override static func primaryKey() -> String? {
+        return "id"
+    }
 }
 
 extension Store {

@@ -9,10 +9,11 @@ import SwiftUI
 import RealmSwift
 
 struct ContentView: View {
+    @ObservedObject var homeState = HomeState()
     var body: some View {
 //        Text("Hello, world!")
 //            .padding()
-        BottomTapbarView()
+        MainTapbarView()
     }
 }
 
@@ -20,6 +21,8 @@ var tabs = ["select" , "favorite", "home", "order" , "mapage"]
 
 class HomeState: ObservableObject {
     @Published var isTap : Bool = false
+    @Published var tabSelection = "home"
+    @Published var navigationVarName = "home"
     
     func isHiddenTap() {
         if(isTap == false){
@@ -38,13 +41,16 @@ class HomeState: ObservableObject {
     }
 }
 
-struct BottomTapbarView: View {
+struct MainTapbarView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) var presentation
     
-    @State var tabSelection = "home"
     @ObservedObject var homeState = HomeState()
+
     @ObservedObject var userVM = UserViewModel()
     
     init() {
+
         UITabBar.appearance().isHidden = true
 
         // Realm 파일 위치
@@ -55,33 +61,34 @@ struct BottomTapbarView: View {
     @State var xAxis: CGFloat = 0
     @State var isTapHidden : Bool = false
     
+    @State private var tag:Int? = nil
+    
     var body: some View {
-        
         ZStack(alignment: Alignment(horizontal: .center, vertical: .bottom)){
-
-            TabView(selection:$tabSelection){
-
-                
-                SearchView(homeState : homeState)
+            NavigationView{
+                TabView(selection:$homeState.tabSelection){
+                    SearchView(homeState: homeState)
                     //.ignoresSafeArea(.all, edges: .all)
-                    .tag("select")
-                
-                MyLikeView(homeState : homeState)
-                    .tag("favorite")
-                
-                HomeView(homeState: homeState)
-                    .tag("home")
-                
-                MyOrderView()
-                    .tag("order")
-                
-                MyPageView(homeState: homeState , userVM: userVM )
-                    .tag("mapage")
-
+                        .tag("select")
+                    
+                    MyLikeView(homeState: homeState)
+                        .tag("favorite")
+                    
+                    HomeView(homeState: homeState)
+                        .tag("home")
+                    
+                    MyOrderView()
+                        .tag("order")
+                    
+                    MyPageView(homeState: homeState , userVM: userVM )
+                        .tag("mapage")
+                    
+                    
+                } 
                 
             }
-            .animation(.easeOut(duration: 0.2), value: tabSelection)
-        .transition(.slide)
+
+
         
             
         //Custom Tab Bar ..
@@ -92,7 +99,7 @@ struct BottomTapbarView: View {
                     GeometryReader { reader in
                         Button(action:{
                             withAnimation(.spring()){
-                                tabSelection = image
+                                homeState.tabSelection = image
                                 if(image != "home"){
                                     xAxis = reader.frame(in: .global).minX
                                 }else{
@@ -110,18 +117,18 @@ struct BottomTapbarView: View {
                                    //.padding(tabSelection == image ? 15 : 0)
 //                                   .background(Color.white.opacity(tabSelection == image ? 1: 0))
 //                                   .clipShape(Circle())
-                                   .offset(x: reader.frame(in: .global).minX - reader.frame(in: .global).midX ,y: tabSelection == image ? -10 : -10)
+                                   .offset(x: reader.frame(in: .global).minX - reader.frame(in: .global).midX ,y: homeState.tabSelection == image ? -10 : -10)
                             }else{
                                 Image(image)
                                    .resizable()
                                    .renderingMode(.template)
                                    .aspectRatio(contentMode: .fit)
                                    .frame(width: 25, height: 25)
-                                   .foregroundColor(tabSelection == image ?  getColor(image: image) : Color.gray)
-                                   .padding(tabSelection == image ? 15 : 0)
-                                   .background(Color.white.opacity(tabSelection == image ? 1: 0))
+                                   .foregroundColor(homeState.tabSelection == image ?  getColor(image: image) : Color.gray)
+                                   .padding(homeState.tabSelection == image ? 15 : 0)
+                                   .background(Color.white.opacity(homeState.tabSelection == image ? 1: 0))
                                    .clipShape(Circle())
-                                   .offset(x: reader.frame(in: .global).minX - reader.frame(in: .global).midX ,y: tabSelection == image ? -45 : 0)
+                                   .offset(x: reader.frame(in: .global).minX - reader.frame(in: .global).midX ,y: homeState.tabSelection == image ? -45 : 0)
                             }
 
 

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 55;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -47,6 +47,7 @@
 		C0D4F1552ACC3C9A004C8540 /* MyPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D4F1542ACC3C9A004C8540 /* MyPageView.swift */; };
 		C0E58E8E2A8380CF00F5F9A5 /*  SelectShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E58E8D2A8380CF00F5F9A5 /*  SelectShopView.swift */; };
 		C0E920772B32C04E00F796AF /* ExtensionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E920762B32C04E00F796AF /* ExtensionView.swift */; };
+		C0E920792B32F4D200F796AF /* SearchView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E920782B32F4D200F796AF /* SearchView2.swift */; };
 		C0F6D10D2A7CE40C00931AAE /* DeliveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F6D10C2A7CE40C00931AAE /* DeliveryView.swift */; };
 /* End PBXBuildFile section */
 
@@ -89,6 +90,7 @@
 		C0D4F1542ACC3C9A004C8540 /* MyPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageView.swift; sourceTree = "<group>"; };
 		C0E58E8D2A8380CF00F5F9A5 /*  SelectShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = " SelectShopView.swift"; sourceTree = "<group>"; };
 		C0E920762B32C04E00F796AF /* ExtensionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionView.swift; sourceTree = "<group>"; };
+		C0E920782B32F4D200F796AF /* SearchView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView2.swift; sourceTree = "<group>"; };
 		C0F6D10C2A7CE40C00931AAE /* DeliveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -211,6 +213,7 @@
 			children = (
 				C066A65E2B2831A800946723 /* SearchView.swift */,
 				C066A6602B2832A900946723 /* SearchBar.swift */,
+				C0E920782B32F4D200F796AF /* SearchView2.swift */,
 			);
 			path = SearchView;
 			sourceTree = "<group>";
@@ -295,16 +298,16 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1310;
-				LastUpgradeCheck = 1310;
+				LastSwiftUpdateCheck = 1510;
+				LastUpgradeCheck = 1510;
 				TargetAttributes = {
 					C056D1352A7A22B4007613CA = {
-						CreatedOnToolsVersion = 13.1;
+						CreatedOnToolsVersion = 15.1;
 					};
 				};
 			};
 			buildConfigurationList = C056D1312A7A22B4007613CA /* Build configuration list for PBXProject "CHDeliveryApp" */;
-			compatibilityVersion = "Xcode 13.0";
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -349,6 +352,7 @@
 				C0C6CCB02ADEA74D00FD2242 /*  RegisterMenuView.swift in Sources */,
 				C066A6502B281BE100946723 /* MyOrderView.swift in Sources */,
 				C04DE8002AD2F502006A73D2 /* EditUserView.swift in Sources */,
+				C0E920792B32F4D200F796AF /* SearchView2.swift in Sources */,
 				C0B31F732AF8E69600043350 /* ShopView.swift in Sources */,
 				C05F72462A7BAE1F00AFB833 /* HexColor.swift in Sources */,
 				C066A6532B28219100946723 /* ViewController.swift in Sources */,
