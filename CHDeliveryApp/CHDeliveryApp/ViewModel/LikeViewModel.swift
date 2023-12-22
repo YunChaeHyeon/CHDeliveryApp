@@ -13,6 +13,7 @@ class LikeViewModel: ObservableObject {
     @Published var likeStores: [Like] = Array(Like.findAll())
     @Published var storeName = ""
     
+    @Published var deleteLike = true
     
     func addLike(add: Store){
         
@@ -26,8 +27,10 @@ class LikeViewModel: ObservableObject {
         Like.addLike(like)
     }
     
-    func delLike(old : Store){
+    func delLike(old : Store) -> Bool{
         var findLikeStore : [Like] = Array(Like.findStore(storeData: old))
         Like.delLikeStore(findLikeStore[0])
+        
+        return false
     }
 }

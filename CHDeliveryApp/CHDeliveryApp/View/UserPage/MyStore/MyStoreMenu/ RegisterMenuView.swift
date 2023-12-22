@@ -346,7 +346,7 @@ struct MenuAddButton : View {
                         
                     }
                     
-                    //dismiss()
+                    dismiss()
                 }, label: {
                     HStack{
                         if(isMenuEdit){
@@ -373,7 +373,7 @@ struct AddMenuRequiredView : View {
     var Index : Int
     var isEdit : Bool
     var menuIndex : Int
-    @FocusState var focused: Bool
+    @State var isVisible : Bool = false
     
     var body: some View {
         
@@ -392,6 +392,13 @@ struct AddMenuRequiredView : View {
                         .foregroundColor(Color.red)
                         .font(.system(size: 20))
                 })
+                .opacity(!isVisible ? 0:1)
+                .onAppear{
+                    isVisible = false
+                        withAnimation(.easeInOut(duration: 0.3)){
+                            isVisible = true
+                        }
+                }
                 
             }.padding(.trailing, 20)
             
@@ -410,8 +417,13 @@ struct AddMenuRequiredView : View {
                     .padding(.horizontal, 16)
                     .background(borderStyleView())
                     .padding(.bottom , 10)
-                    //.focused($focused)
-
+                    .opacity(!isVisible ? 0:1)
+                    .onAppear{
+                        isVisible = false
+                            withAnimation(.easeInOut(duration: 0.3)){
+                                isVisible = true
+                            }
+                    }
                 
                     Spacer()
                     
@@ -459,11 +471,12 @@ struct AddMenuRequiredListView : View {
     var listIndex : Int
     var isEdit : Bool
     var menuIndex : Int
+    @State var isVisible : Bool = false
     
     var body: some View {
         HStack{
 
-                TextField("목록 입력", text:  Binding(get:  {
+            TextField("목록 입력", text:  Binding(get:  { self.Index2 < self.storeRegiVM.menuRequireds.count &&
                     self.listIndex < self.storeRegiVM.menuRequireds[Index2].menuRequiredList.count ?
                     self.storeRegiVM.menuRequireds[Index2].menuRequiredList[listIndex].menuRequiredTitle : ""
 
@@ -484,7 +497,7 @@ struct AddMenuRequiredListView : View {
 
                 Spacer()
 
-            TextField("가격 입력", value : Binding(get: {
+            TextField("가격 입력", value : Binding(get: { self.Index2 < self.storeRegiVM.menuRequireds.count &&
                 self.listIndex < self.storeRegiVM.menuRequireds[Index2].menuRequiredList.count ?
                 self.storeRegiVM.menuRequireds[Index2].menuRequiredList[listIndex].menuPrice : 0
             } , set: {
@@ -519,6 +532,13 @@ struct AddMenuRequiredListView : View {
             })
 
         }.padding(.trailing, 20)
+        .opacity(!isVisible ? 0:1)
+        .onAppear{
+                isVisible = false
+                    withAnimation(.easeInOut(duration: 0.3)){
+                        isVisible = true
+                    }
+        }
         
     }
 }
@@ -529,8 +549,7 @@ struct AddMenuOptionsView : View {
     var isEdit : Bool
     var menuIndex : Int
     
-    @State var title : String = ""
-    @FocusState var focused: Bool
+    @State var isVisible : Bool = false
     
     var body: some View {
         VStack {
@@ -545,6 +564,13 @@ struct AddMenuOptionsView : View {
                         .foregroundColor(Color.red)
                         .font(.system(size: 20))
                 })
+                .opacity(!isVisible ? 0:1)
+                .onAppear{
+                    isVisible = false
+                        withAnimation(.easeInOut(duration: 0.3)){
+                            isVisible = true
+                        }
+                }
 
             }.padding(.trailing, 20)
             
@@ -561,7 +587,13 @@ struct AddMenuOptionsView : View {
                         .padding(.horizontal, 16)
                         .background(borderStyleView())
                         .padding(.bottom , 10)
-                        .focused($focused)
+                        .opacity(!isVisible ? 0:1)
+                        .onAppear{
+                            isVisible = false
+                                withAnimation(.easeInOut(duration: 0.3)){
+                                    isVisible = true
+                                }
+                        }
     
                     Spacer()
                     
@@ -600,8 +632,8 @@ struct AddMenuOptionListView : View {
     @ObservedObject var storeRegiVM: StoreViewModel
     var Index2 : Int
     var listIndex : Int
-    @State var title : String = ""
-    @State var price : String = ""
+    
+    @State var isVisible : Bool = false
 
     var body: some View {
         HStack{
@@ -614,7 +646,8 @@ struct AddMenuOptionListView : View {
 //                                              ,set : {
 //                storeRegiVM.objectWillChange.send()
 //                storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuOptionTitle = $0}))
-            TextField("목록 입력", text:  Binding(get:  {self.listIndex < self.storeRegiVM.menuOptions[Index2].menuOptionList.count ?
+            TextField("목록 입력", text:  Binding(get:  { self.Index2 < self.storeRegiVM.menuOptions.count &&
+                self.listIndex < self.storeRegiVM.menuOptions[Index2].menuOptionList.count ?
                 self.storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuOptionTitle : ""
 
             }
@@ -632,7 +665,8 @@ struct AddMenuOptionListView : View {
                     .padding(.horizontal,30)
             Spacer()
 
-            TextField("가격 입력", value : Binding(get: {self.listIndex < self.storeRegiVM.menuOptions[Index2].menuOptionList.count ?
+            TextField("가격 입력", value : Binding(get: {self.Index2 < self.storeRegiVM.menuOptions.count &&
+                self.listIndex < self.storeRegiVM.menuOptions[Index2].menuOptionList.count ?
                 self.storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuPrice : 0
             } , set: {self.storeRegiVM.menuOptions[Index2].menuOptionList[listIndex].menuPrice = $0}), formatter: NumberFormatter())
                     .frame(width: 80)
@@ -657,6 +691,13 @@ struct AddMenuOptionListView : View {
 
 
         }.padding(.trailing, 20)
+        .opacity(!isVisible ? 0:1)
+        .onAppear{
+            isVisible = false
+                withAnimation(.easeInOut(duration: 0.3)){
+                    isVisible = true
+                }
+        }
     }
 }
 

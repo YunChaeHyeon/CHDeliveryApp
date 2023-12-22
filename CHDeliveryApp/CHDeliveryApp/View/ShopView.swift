@@ -15,7 +15,7 @@ struct ShopView: View {
     @ObservedObject var storeRegiVM : StoreViewModel = StoreViewModel()
     var isSelectView : Bool
     @ObservedObject var cartVM = CartViewModel()
-    @ObservedObject var likeVM = LikeViewModel()
+    @ObservedObject var likeVM : LikeViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var tag:Int? = nil
     
@@ -87,8 +87,8 @@ struct ShopView: View {
                                 likeVM.storeName = storeData.storeName
                                 likeVM.addLike(add: storeData)
                             }else{
+                                likeVM.deleteLike = likeVM.delLike(old: storeData)
                                 
-                                likeVM.delLike(old: storeData)
                             }
                         }
                     

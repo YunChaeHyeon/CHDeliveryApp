@@ -27,7 +27,7 @@ struct SearchView: View {
                     .padding(EdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0))
                 ScrollView {
                     ForEach(stores.filter{$0.storeName.contains(searchText) || searchText == "" } , id: \.id ) { store in
-                        NavigationLink( destination : ShopView(id : store.id , storeData: store , homeState: homeState , isSelectView : false).onAppear{homeState.isHiddenTap()}, tag: store.hashValue , selection: self.$tag , label: {
+                        NavigationLink( destination : ShopView(id : store.id , storeData: store , homeState: homeState , isSelectView : false , likeVM : LikeViewModel() ).onAppear{homeState.isHiddenTap()}, tag: store.hashValue , selection: self.$tag , label: {
                             HStack{
                                 imageconversion.getImage(_image: store.storeMainImage!)
                                     .resizable()

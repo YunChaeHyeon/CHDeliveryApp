@@ -239,7 +239,7 @@ struct CategoryShopView : View {
         var stores = storeRegiVM.stores
         VStack {
             ForEach(stores , id : \.self) { store in
-                NavigationLink( destination: ShopView(id : store.id, storeData: store , homeState: homeState , isSelectView: true)  , tag: store.hashValue , selection: self.$tag , label: {
+                NavigationLink( destination: ShopView(id : store.id, storeData: store , homeState: homeState , isSelectView: true , likeVM: LikeViewModel() )  , tag: store.hashValue , selection: self.$tag , label: {
                     storeListView(storeRegiVM ,store , store.storeCategory , topTapNum)
                 })
                 
